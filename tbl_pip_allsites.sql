@@ -22,7 +22,9 @@ if object_id('accessnewpip.dbo.tbl_pip_allsites') is not null
 
 create table accessnewpip.dbo.tbl_pip_allsites([Prop ID] nvarchar(15) unique foreign key references accessnewpip.dbo.tbl_ref_allsites([Prop ID]),
 											   Category nvarchar(128) foreign key references accessnewpip.dbo.tbl_ref_category(Category),
-											   Sub-Category nvarchar(40) foreign key references accessnewpip.dbo.tbl_ref_subcategory([Sub-Category]),
+											   [Sub-Category] nvarchar(40) foreign key references accessnewpip.dbo.tbl_ref_subcategory([Sub-Category]),
 											   Rated bit not null,
 											   [Reason Not Rated] nvarchar(128),
+											   [Safety Index] smallint,
+											   [ComfortStation] smallint,
 											   Comments nvarchar(255));

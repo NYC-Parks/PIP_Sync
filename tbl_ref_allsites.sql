@@ -23,19 +23,16 @@ if object_id('accessnewpip.dbo.tbl_ref_allsites') is not null
 create table accessnewpip.dbo.tbl_ref_allsites(PropNum nvarchar(25),
 											   [Prop ID] nvarchar(15) primary key,
 											   Boro nvarchar(1),
-											   /*Which District?*/
-											   ------------------------
-											   District nvarchar(25),
 											   AMPSDistrict nvarchar(25),
-											   ------------------------
-											   /*This is in Parks Property Search*/
-											   [Council District] nvarchar(50),
 											   [Prop Name] nvarchar(128),
 											   [Site Name] nvarchar(100),
 											   [Prop Location] nvarchar(128),
 											   [Site Location] nvarchar(128),
+											   jurisdiction nvarchar(25),
+											   typecategory nvarchar(100),
+											   acres real,
 											   gisobjid int, 
 											   sourcefc nvarchar(30) not null,
-											   row_hash as hashbytes('SHA2_256', PropNum, [Prop ID], Boro, District, AMPSDistrict, [Council District], 
+											   row_hash as hashbytes('SHA2_256', PropNum, [Prop ID], Boro, District, AMPSDistrict,
 																	 [Prop Name], [Site Name], [Prop Location], [Site Location], 
-																	 gisobjid, sourcefc) persisted);
+																	 jurisdiction, typecategory, acres, gisobjid, sourcefc) persisted);
