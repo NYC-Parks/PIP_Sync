@@ -23,7 +23,7 @@ select gispropnum as propnum,
        featurestatus as gis_retired,
 	   'Property' AS sourcefc, 
 	   gisobjid
-from parksgis.dpr.property_evw
+from [gisdata].parksgis.dpr.property_evw
 union all
 /*Verify this should be gispropnum and not be parentid*/
 select gispropnum as propnum,
@@ -44,9 +44,9 @@ select gispropnum as propnum,
 from (select l.*,
 			 r.signname as [prop name],
 			 r.location as [prop location]
-	  from parksgis.dpr.playground_evw as l
+	  from [gisdata].parksgis.dpr.playground_evw as l
 	  left join
-		   parksgis.dpr.property_evw as r
+		   [gisdata].parksgis.dpr.property_evw as r
 	  on l.gispropnum = r.gispropnum) as t
 /*WHERE OMPPROPID IS NOT NULL*/ UNION ALL
 select gispropnum as propnum,
@@ -67,9 +67,9 @@ select gispropnum as propnum,
 from (select l.*,
 			 r.signname as [prop name],
 			 r.location as [prop location]
-	  from parksgis.dpr.greenstreet_evw as l
+	  from [gisdata].parksgis.dpr.greenstreet_evw as l
 	  left join
-		   parksgis.dpr.property_evw as r
+		   [gisdata].parksgis.dpr.property_evw as r
 	  on l.gispropnum = r.gispropnum) as t
 where omppropid not like 'XZ475' or
 	  retired like 'False'
@@ -93,9 +93,9 @@ select gispropnum as propnum,
 from (select l.*,
 			 r.signname as [prop name],
 			 r.location as [prop location]
-	  from parksgis.dpr.zone_evw as l
+	  from [gisdata].parksgis.dpr.zone_evw as l
 	  left join
-		   parksgis.dpr.property_evw as r
+		   [gisdata].parksgis.dpr.property_evw as r
 	  on l.gispropnum = r.gispropnum) as t
 /*WHERE OMPPROPID IS NOT NULL*/ 
 union all
@@ -117,9 +117,9 @@ select gispropnum as propnum,
 from (select l.*,
 			 r.signname as [prop name],
 			 r.location as [prop location]
-	  from parksgis.dpr.golfcourse_evw as l
+	  from [gisdata].parksgis.dpr.golfcourse_evw as l
 	  left join
-		   parksgis.dpr.property_evw as r
+		   [gisdata].parksgis.dpr.property_evw as r
 	  on l.gispropnum = r.gispropnum) as t
 /*WHERE OMPPROPID IS NOT NULL*/ 
 union all
@@ -137,7 +137,7 @@ select gispropnum as propnum,
        featurestatus as gis_retired,
 	   'Schoolyard To Playground' AS sourcefc, 
 	   gisobjid
-from parksgis.dpr.schoolyard_to_playground_evw
+from [gisdata].parksgis.dpr.schoolyard_to_playground_evw
 /*WHERE OMPPROPID IS NOT NULL*/ 
 union all
 select gispropnum as propnum,
@@ -155,12 +155,12 @@ select gispropnum as propnum,
 	   'Structure' AS sourcefc, 
 	   gisobjid
 	 /*Join to property_evw in order to get prop name and prop location*/
-from parksgis.dpr.structure_evw as l
+from [gisdata].parksgis.dpr.structure_evw as l
 inner join
 	 (select distinct l.system
-	  from parksgis.dpr.structure_evw as l
+	  from [gisdata].parksgis.dpr.structure_evw as l
 	  inner join
-		   parksgis.dpr.structurefunction_evw as r
+		   [gisdata].parksgis.dpr.structurefunction_evw as r
 	  on l.system = r.system
 	  where lower(r.structurefunction) in ('recreation center', 'nature center')) as r
 on l.system = r.system
@@ -184,9 +184,9 @@ select gispropnum as propnum,
 from (select l.*,
 			 r.signname as [prop name],
 			 r.location as [prop location]
-	  from parksgis.dpr.unmapped_gisallsites_evw as l
+	  from [gisdata].parksgis.dpr.unmapped_gisallsites_evw as l
 	  left join
-		   parksgis.dpr.property_evw as r
+		   [gisdata].parksgis.dpr.property_evw as r
 	  on l.gispropnum = r.gispropnum) as t
 /*where gispropnum not in ('BT02', 'BT04')*/ 
 union all
@@ -205,6 +205,6 @@ select gispropnum as propnum,
 	   'RestrictiveDeclarationSite' AS sourcefc, 
 	   gisobjid
 	 /*Join to property_evw in order to get prop name and prop location*/
-from parksgis.dpr.restrictivedeclarationsite_evw as l
+from [gisdata].parksgis.dpr.restrictivedeclarationsite_evw as l
 where omppropid not in('M404', 'B591', 'B595')
 
