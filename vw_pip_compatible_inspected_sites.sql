@@ -1,119 +1,210 @@
-USE [ParksGIS]
-GO
+use accessnewpip
+go
 
-SET ANSI_NULLS ON
-GO
+set ansi_nulls on
+go
 
-SET QUOTED_IDENTIFIER ON
-GO
+set quoted_identifier on
+go
 
-CREATE VIEW [DPR].[vw_PIP_Compatible_Inspected_Sites]
-AS
-SELECT        GISPROPNUM AS PropNum, OMPPROPID AS [Prop ID]/*, LEFT(DEPARTMENT,1) AS Boro*/ , LEFT(DEPARTMENT, 1) AS Boro, District, RIGHT(Department, 
-                         LEN(Department) - CharIndex('-', Department)) AS AMPSDistrict, Prop_Name AS [Prop Name], Site_Name AS [Site Name], Prop_Location AS [Prop Location], 
-                         Site_Location AS [Site Location], ROUND(ACRES, 3) AS Acres, Category, SUBCATEGORY AS [Sub-Category], Comments_1 AS Comments, 
-                         CASE WHEN PIP_RATABLE LIKE 'Yes' THEN 1 /*ELSE 0*/ ELSE 0 END AS Rated, Reason_Not_Rated AS [Reason Not Rated], 
-                         Sub_Properties_Rated AS [Sub-Properties Rated], Sub_Property AS [Sub-Property], Safety_Index AS [Safety Index], Map____Hagstrom_ AS [Map # (Hagstrom)], 
-                         Map_Grid__Hagstrom_ AS [Map Grid (Hagstrom)], COUNCILDISTRICT AS [Council District], ZipCode, PIPZipCode, CommunityBoard, TypeCategory, Jurisdiction, 
-                         NYS_ASSEMBLY AS [NYSAssembly], NYS_SENATE AS [NYSSenate], US_CONGRESS AS [USCongress], ComfortStation, CSCount, PIPCreated, NULL AS PIPCB, 
-                         CAST(LEFT(SUBSTRING(Precinct, PATINDEX('%[0-9.-]%', Precinct), 8000), PATINDEX('%[^0-9.-]%', SUBSTRING(Precinct, PATINDEX('%[0-9.-]%', Precinct), 8000) + 'X') - 1)
-                          AS INT) Precinct, created_date AS [GISCreated], RETIRED AS [GIS_Retired], District AS [GISDistrict], PERMITDISTRICT AS [PermitDistrict], Borough AS [GISBoro], 
-                         LOCATION AS [GIS Site Location], 'Property' AS SourceFC, GISOBJID
-FROM            ParksGIS.dpr.Property_EVW Prop
+create view dbo.vw_pip_compatible_inspected_sites
+as
+select gispropnum as propnum,
+	   gispropnum as [prop id],
+	   dbo.fn_getpipboro(department) as boro,
+	   dbo.fn_get_pipdistrict(department) as ampsdistrict,
+	   signname as [prop name],
+	   signname as [site name],
+	   location as [prop location],
+	   location as [site location],
+	   round(acres, 3) as acres,
+       jurisdiction,
+	   typecategory,
+       featurestatus as gis_retired,
+	   'Property' AS sourcefc, 
+	   gisobjid
+from parksgis.dpr.property_evw
+union all
+/*Verify this should be gispropnum and not be parentid*/
+select gispropnum as propnum,
+	   omppropid as [prop id],
+	   dbo.fn_getpipboro(department) as boro,
+	   dbo.fn_get_pipdistrict(department) as ampsdistrict,
+	   [prop name],
+	   signname as [site name],
+	   [prop location],
+	   location as [site location],
+	   round(acres, 3) as acres,
+       jurisdiction,
+	   null as typecategory,
+       featurestatus as gis_retired,
+	   'Playground' AS sourcefc, 
+	   gisobjid
+	 /*Join to property_evw in order to get prop name and prop location*/
+from (select l.*,
+			 r.signname as [prop name],
+			 r.location as [prop location]
+	  from parksgis.dpr.playground_evw as l
+	  left join
+		   parksgis.dpr.property_evw as r
+	  on l.gispropnum = r.gispropnum) as t
 /*WHERE OMPPROPID IS NOT NULL*/ UNION ALL
-SELECT        ParentID AS PropNum, OMPPROPID AS [Prop ID], LEFT(DEPARTMENT, 1) AS Boro, District, RIGHT(Department, LEN(Department) - CharIndex('-', Department)) 
-                         AS AMPSDistrict, Prop_Name AS [Prop Name], Site_Name AS [Site Name], Prop_Location AS [Prop Location], Site_Location AS [Site Location], ROUND(ACRES, 3) 
-                         AS Acres, Category, SUBCATEGORY AS [Sub-Category], Comments_1 AS Comments, CASE WHEN PIP_RATABLE LIKE 'Yes' THEN 1 ELSE 0 END AS Rated, 
-                         Reason_Not_Rated AS [Reason Not Rated], Sub_Properties_Rated AS [Sub-Properties Rated], Sub_Property AS [Sub-Property], Safety_Index AS [Safety Index], 
-                         Map____Hagstrom_ AS [Map # (Hagstrom)], Map_Grid__Hagstrom_ AS [Map Grid (Hagstrom)], COUNCILDISTRICT AS [Council District], ZipCode, PIPZipCode, 
-                         CommunityBoard, TypeCategory, Jurisdiction, NYS_ASSEMBLY AS [NYSAssembly], NYS_SENATE AS [NYSSenate], US_CONGRESS AS [USCongress], 
-                         ComfortStation, CSCount, PIPCreated, NULL AS PIPCB, CAST(LEFT(SUBSTRING(Precinct, PATINDEX('%[0-9.-]%', Precinct), 8000), PATINDEX('%[^0-9.-]%', 
-                         SUBSTRING(Precinct, PATINDEX('%[0-9.-]%', Precinct), 8000) + 'X') - 1) AS INT) Precinct, created_date AS [GISCreated], RETIRED AS [GIS_Retired], 
-                         District AS [GISDistrict], PERMITDISTRICT AS [PermitDistrict], Borough AS [GISBoro], LOCATION AS [GIS Site Location], 'Playground' AS SourceFC, GISOBJID
-FROM            ParksGIS.dpr.Playground_EVW
-/*WHERE OMPPROPID IS NOT NULL*/ UNION ALL
-SELECT        GISPROPNUM AS PropNum, OMPPROPID AS [Prop ID], LEFT(DEPARTMENT, 1) AS Boro, District, RIGHT(Department, LEN(Department) - CharIndex('-', Department)) 
-                         AS AMPSDistrict, Prop_Name AS [Prop Name], Site_Name AS [Site Name], Prop_Location AS [Prop Location], Site_Location AS [Site Location], ROUND(ACRES, 3) 
-                         AS Acres, Category, SUBCATEGORY AS [Sub-Category], Comments_1 AS Comments, CASE WHEN PIP_RATABLE LIKE 'Yes' THEN 1 ELSE 0 END AS Rated, 
-                         Reason_Not_Rated AS [Reason Not Rated], Sub_Properties_Rated AS [Sub-Properties Rated], Sub_Property AS [Sub-Property], Safety_Index AS [Safety Index], 
-                         Map____Hagstrom_ AS [Map # (Hagstrom)], Map_Grid__Hagstrom_ AS [Map Grid (Hagstrom)], COUNCILDISTRICT AS [Council District], ZipCode, PIPZipCode, 
-                         CommunityBoard, TypeCategory, Jurisdiction, NYS_ASSEMBLY AS [NYSAssembly], NYS_SENATE AS [NYSSenate], US_CONGRESS AS [USCongress], 
-                         ComfortStation_1, CSCount, PIPCreated, NULL AS PIPCB, CAST(LEFT(SUBSTRING(Precinct, PATINDEX('%[0-9.-]%', Precinct), 8000), PATINDEX('%[^0-9.-]%', 
-                         SUBSTRING(Precinct, PATINDEX('%[0-9.-]%', Precinct), 8000) + 'X') - 1) AS INT) Precinct, created_date AS [GISCreated], RETIRED AS [GIS_Retired], 
-                         District AS [GISDistrict], PERMITDISTRICT AS [PermitDistrict], Borough AS [GISBoro], LOCATION AS [GIS Site Location], 'Greenstreet' AS SourceFC, GISOBJID
-FROM            ParksGIS.dpr.GreenStreet_EVW
-WHERE        OMPPROPID NOT LIKE 'XZ475' OR
-                         RETIRED LIKE 'False'
-/*AND OMPPROPID IS NOT NULL*/ UNION ALL
-SELECT        ParentID AS PropNum, OMPPROPID AS [Prop ID], LEFT(DEPARTMENT, 1) AS Boro, District, RIGHT(Department, LEN(Department) - CharIndex('-', Department)) 
-                         AS AMPSDistrict, Prop_Name AS [Prop Name], SITENAME AS [Site Name], Prop_Location AS [Prop Location], Site_Location AS [Site Location], ROUND(ACRES, 3) 
-                         AS Acres, Category, SUBCATEGORY AS [Sub-Category], Comments_1 AS Comments, CASE WHEN PIP_RATABLE LIKE 'Yes' THEN 1 ELSE 0 END AS Rated, 
-                         Reason_Not_Rated AS [Reason Not Rated], Sub_Properties_Rated AS [Sub-Properties Rated], Sub_Property AS [Sub-Property], Safety_Index AS [Safety Index], 
-                         Map____Hagstrom_ AS [Map # (Hagstrom)], Map_Grid__Hagstrom_ AS [Map Grid (Hagstrom)], COUNCILDISTRICT AS [Council District], ZipCode, PIPZipCode, 
-                         CommunityBoard, TypeCategory, Jurisdiction, NYS_ASSEMBLY AS [NYSAssembly], NYS_SENATE AS [NYSSenate], US_CONGRESS AS [USCongress], 
-                         ComfortStation_1, CSCount, PIPCreated, NULL AS PIPCB, CAST(LEFT(SUBSTRING(Precinct, PATINDEX('%[0-9.-]%', Precinct), 8000), PATINDEX('%[^0-9.-]%', 
-                         SUBSTRING(Precinct, PATINDEX('%[0-9.-]%', Precinct), 8000) + 'X') - 1) AS INT) Precinct, created_date AS [GISCreated], RETIRED AS [GIS_Retired], 
-                         District AS [GISDistrict], PERMITDISTRICT AS [PermitDistrict], Borough AS [GISBoro], LOCATION AS [GIS Site Location], 'Zone' AS SourceFC, GISOBJID
-FROM            ParksGIS.dpr.Zone_EVW
-/*WHERE OMPPROPID IS NOT NULL*/ UNION ALL
-SELECT        ParentID AS PropNum, OMPPROPID AS [Prop ID], LEFT(DEPARTMENT, 1) AS Boro, District, RIGHT(Department, LEN(Department) - CharIndex('-', Department)) 
-                         AS AMPSDistrict, Prop_Name AS [Prop Name], Site_Name AS [Site Name], Prop_Location AS [Prop Location], Site_Location AS [Site Location], ROUND(ACRES, 3) 
-                         AS Acres, Category, SUBCATEGORY AS [Sub-Category], Comments_1 AS Comments, CASE WHEN PIP_RATABLE LIKE 'Yes' THEN 1 ELSE 0 END AS Rated, 
-                         Reason_Not_Rated AS [Reason Not Rated], Sub_Properties_Rated AS [Sub-Properties Rated], Sub_Property AS [Sub-Property], Safety_Index AS [Safety Index], 
-                         Map____Hagstrom_ AS [Map # (Hagstrom)], Map_Grid__Hagstrom_ AS [Map Grid (Hagstrom)], COUNCILDISTRICT AS [Council District], ZipCode, PIPZipCode, 
-                         CommunityBoard, TypeCategory, Jurisdiction, NYS_ASSEMBLY AS [NYSAssembly], NYS_SENATE AS [NYSSenate], US_CONGRESS AS [USCongress], 
-                         ComfortStation, CSCount, PIPCreated, NULL AS PIPCB, CAST(LEFT(SUBSTRING(Precinct, PATINDEX('%[0-9.-]%', Precinct), 8000), PATINDEX('%[^0-9.-]%', 
-                         SUBSTRING(Precinct, PATINDEX('%[0-9.-]%', Precinct), 8000) + 'X') - 1) AS INT) Precinct, created_date AS [GISCreated], RETIRED AS [GIS_Retired], 
-                         District AS [GISDistrict], PERMITDISTRICT AS [PermitDistrict], Borough AS [GISBoro], LOCATION AS [GIS Site Location], 'GolfCourse' AS SourceFC, GISOBJID
-FROM            ParksGIS.dpr.GolfCourse_EVW
-/*WHERE OMPPROPID IS NOT NULL*/ UNION ALL
-SELECT        GISPROPNUM AS PropNum, OMPPROPID AS [Prop ID], LEFT(DEPARTMENT, 1) AS Boro, District, RIGHT(Department, LEN(Department) - CharIndex('-', Department)) 
-                         AS AMPSDistrict, Prop_Name AS [Prop Name], Site_Name AS [Site Name], Prop_Location AS [Prop Location], Site_Location AS [Site Location], ROUND(ACRES, 3) 
-                         AS Acres, Category, SUBCATEGORY AS [Sub-Category], Comments_1 AS Comments, CASE WHEN PIP_RATABLE LIKE 'Yes' THEN 1 ELSE 0 END AS Rated, 
-                         Reason_Not_Rated AS [Reason Not Rated], Sub_Properties_Rated AS [Sub-Properties Rated], Sub_Property AS [Sub-Property], Safety_Index AS [Safety Index], 
-                         Map____Hagstrom_ AS [Map # (Hagstrom)], Map_Grid__Hagstrom_ AS [Map Grid (Hagstrom)], COUNCILDISTRICT AS [Council District], ZipCode, PIPZipCode, 
-                         CommunityBoard, TypeCategory, Jurisdiction, NYS_ASSEMBLY AS [NYSAssembly], NYS_SENATE AS [NYSSenate], US_CONGRESS AS [USCongress], 
-                         ComfortStation_1, CSCount, PIPCreated, NULL AS PIPCB, CAST(LEFT(SUBSTRING(Precinct, PATINDEX('%[0-9.-]%', Precinct), 8000), PATINDEX('%[^0-9.-]%', 
-                         SUBSTRING(Precinct, PATINDEX('%[0-9.-]%', Precinct), 8000) + 'X') - 1) AS INT) Precinct, created_date AS [GISCreated], RETIRED AS [GIS_Retired], 
-                         District AS [GISDistrict], PERMITDISTRICT AS [PermitDistrict], Borough AS [GISBoro], LOCATION AS [GIS Site Location], 
-                         'Schoolyard To Playground' AS SourceFC, NULL AS GISOBJID
-FROM            ParksGIS.dpr.Schoolyard_To_Playground_EVW
-/*WHERE OMPPROPID IS NOT NULL*/ UNION ALL
-SELECT        GISPROPNUM AS PropNum, OMPPROPID AS [Prop ID], LEFT(DEPARTMENT, 1) AS Boro, District, RIGHT(Department, LEN(Department) - CharIndex('-', Department)) 
-                         AS AMPSDistrict, Prop_Name AS [Prop Name], Site_Name AS [Site Name], Prop_Location AS [Prop Location], Site_Location AS [Site Location], ROUND(ACRES, 3) 
-                         AS Acres, Category, Sub_Category AS [Sub-Category], Comments_1 AS Comments, CASE WHEN PIP_RATABLE LIKE 'Yes' THEN 1 ELSE 0 END AS Rated, 
-                         Reason_Not_Rated AS [Reason Not Rated], Sub_Properties_Rated AS [Sub-Properties Rated], Sub_Property AS [Sub-Property], Safety_Index AS [Safety Index], 
-                         Map____Hagstrom_ AS [Map # (Hagstrom)], Map_Grid__Hagstrom_ AS [Map Grid (Hagstrom)], COUNCILDISTRICT AS [Council District], ZipCode, PIPZipCode, 
-                         CommunityBoard, TypeCategory, Jurisdiction, NYS_ASSEMBLY AS [NYSAssembly], NYS_SENATE AS [NYSSenate], US_CONGRESS AS [USCongress], 
-                         ComfortStation_1, CSCount, PIPCreated, NULL AS PIPCB, CAST(LEFT(SUBSTRING(Precinct, PATINDEX('%[0-9.-]%', Precinct), 8000), PATINDEX('%[^0-9.-]%', 
-                         SUBSTRING(Precinct, PATINDEX('%[0-9.-]%', Precinct), 8000) + 'X') - 1) AS INT) Precinct, created_date AS [GISCreated], RETIRED AS [GIS_Retired], 
-                         District AS [GISDistrict], PERMITDISTRICT AS [PermitDistrict], Borough AS [GISBoro], LOCATION AS [GIS Site Location], 'Structure' AS SourceFC, GISOBJID
-FROM            ParksGIS.dpr.Structure_EVW
-WHERE        PIP_RATABLE LIKE 'Yes'
-/*AND OMPPROPID IS NOT NULL*/ UNION ALL
-SELECT        GISPROPNUM AS PropNum, OMPPROPID AS [Prop ID], LEFT(DEPARTMENT, 1) AS Boro, 
-                         District/*, RIGHT(Department,LEN(Department) - CharIndex('-',Department)) AS AMPSDistrict*/ , REPLACE(RIGHT(Department, LEN(Department) - CharIndex('-', 
-                         Department)), '-', '') AS AMPSDistrict, Prop_Name AS [Prop Name], Site_Name AS [Site Name], Prop_Location AS [Prop Location], Site_Location AS [Site Location], 
-                         ROUND(ACRES, 3) AS Acres, Category, SUBCATEGORY AS [Sub-Category], Comments AS Comments, 
-                         CASE WHEN PIP_RATABLE LIKE 'Yes' THEN 1 ELSE 0 END AS Rated, Reason_Not_Rated AS [Reason Not Rated], Sub_Properties_Rated AS [Sub-Properties Rated], 
-                         Sub_Property AS [Sub-Property], Safety_Index AS [Safety Index], Map____Hagstrom_ AS [Map # (Hagstrom)], Map_Grid__Hagstrom_ AS [Map Grid (Hagstrom)], 
-                         COUNCILDISTRICT AS [Council District], ZipCode, PIPZipCode, CommunityBoard, TypeCategory, Jurisdiction, NYSAssembly, NYSSenate, USCongress, 
-                         ComfortStation, CSCount, PIPCreated, NULL AS PIPCB, CAST(LEFT(SUBSTRING(Precinct, PATINDEX('%[0-9.-]%', Precinct), 8000), PATINDEX('%[^0-9.-]%', 
-                         SUBSTRING(Precinct, PATINDEX('%[0-9.-]%', Precinct), 8000) + 'X') - 1) AS INT) Precinct/*, created_date AS [GISCreated]*/ , NULL AS [GISCreated], 
-                         RETIRED AS [GIS_Retired], District AS [GISDistrict], PERMITDISTRICT AS [PermitDistrict], Borough AS [GISBoro], LOCATION AS [GIS Site Location], 
-                         'Unmapped' AS SourceFC, NULL AS GISOBJID
-FROM            ParksGIS.dpr.Unmapped_GISAllSites_evw
-/*WHERE GISPROPNUM NOT IN ('BT02', 'BT04')*/ UNION ALL
-SELECT        GISPROPNUM AS PropNum, OMPPROPID AS [Prop ID], LEFT(DEPARTMENT, 1) AS Boro, District, RIGHT(Department, LEN(Department) - CharIndex('-', Department)) 
-                         AS AMPSDistrict, Prop_Name AS [Prop Name], Site_Name AS [Site Name], Prop_Location AS [Prop Location], Site_Location AS [Site Location], ROUND(ACRES, 3) 
-                         AS Acres, Category, SUBCATEGORY AS [Sub-Category], Comments_1 AS Comments, CASE WHEN PIP_RATABLE LIKE 'Yes' THEN 1 ELSE 0 END AS Rated, 
-                         Reason_Not_Rated AS [Reason Not Rated], Sub_Properties_Rated AS [Sub-Properties Rated], Sub_Property AS [Sub-Property], Safety_Index AS [Safety Index], 
-                         Map____Hagstrom_ AS [Map # (Hagstrom)], Map_Grid__Hagstrom_ AS [Map Grid (Hagstrom)], COUNCILDISTRICT AS [Council District], ZipCode, PIPZipCode, 
-                         CommunityBoard, TypeCategory, Jurisdiction, NYS_ASSEMBLY AS [NYSAssembly], NYS_SENATE AS [NYSSenate], US_CONGRESS AS [USCongress], 
-                         ComfortStation_1, CSCount, PIPCreated, NULL AS PIPCB, CAST(LEFT(SUBSTRING(Precinct, PATINDEX('%[0-9.-]%', Precinct), 8000), PATINDEX('%[^0-9.-]%', 
-                         SUBSTRING(Precinct, PATINDEX('%[0-9.-]%', Precinct), 8000) + 'X') - 1) AS INT) Precinct, created_date AS [GISCreated], RETIRED AS [GIS_Retired], 
-                         District AS [GISDistrict], PERMITDISTRICT AS [PermitDistrict], Borough AS [GISBoro], LOCATION AS [GIS Site Location], 
-                         'RestrictiveDeclarationSite' AS SourceFC, NULL AS GISOBJID
-FROM            ParksGIS.dpr.RestrictiveDeclarationSite_EVW
-WHERE        OMPPROPID NOT IN ('M404', 'B591', 'B595')
+select gispropnum as propnum,
+	   omppropid as [prop id],
+	   dbo.fn_getpipboro(department) as boro,
+	   dbo.fn_get_pipdistrict(department) as ampsdistrict,
+	   [prop name],
+	   sitename as [site name],
+	   [prop location],
+	   location as [site location],
+	   round(acres, 3) as acres,
+       jurisdiction,
+	   null as typecategory,
+       featurestatus as gis_retired,
+	   'Greenstreet' AS sourcefc, 
+	   gisobjid
+	 /*Join to property_evw in order to get prop name and prop location*/
+from (select l.*,
+			 r.signname as [prop name],
+			 r.location as [prop location]
+	  from parksgis.dpr.greenstreet_evw as l
+	  left join
+		   parksgis.dpr.property_evw as r
+	  on l.gispropnum = r.gispropnum) as t
+where omppropid not like 'XZ475' or
+	  retired like 'False'
+/*AND OMPPROPID IS NOT NULL*/ 
+union all
+select gispropnum as propnum,
+	   omppropid as [prop id],
+	   dbo.fn_getpipboro(department) as boro,
+	   dbo.fn_get_pipdistrict(department) as ampsdistrict,
+	   [prop name],
+	   sitename as [site name],
+	   [prop location],
+	   location as [site location],
+	   round(acres, 3) as acres,
+       jurisdiction, 
+	   null as typecategory,
+       featurestatus as gis_retired,
+	   'Zone' AS sourcefc, 
+	   gisobjid
+	 /*Join to property_evw in order to get prop name and prop location*/
+from (select l.*,
+			 r.signname as [prop name],
+			 r.location as [prop location]
+	  from parksgis.dpr.zone_evw as l
+	  left join
+		   parksgis.dpr.property_evw as r
+	  on l.gispropnum = r.gispropnum) as t
+/*WHERE OMPPROPID IS NOT NULL*/ 
+union all
+select gispropnum as propnum,
+	   omppropid as [prop id],
+	   dbo.fn_getpipboro(department) as boro,
+	   dbo.fn_get_pipdistrict(department) as ampsdistrict,
+	   [prop name],
+	   name as [site name],
+	   [prop location],
+	   location as [site location],
+	   round(acres, 3) as acres,
+       jurisdiction,
+	   null as typecategory,
+       featurestatus as gis_retired,
+	   'Golfcourse' AS sourcefc, 
+	   gisobjid
+	 /*Join to property_evw in order to get prop name and prop location*/
+from (select l.*,
+			 r.signname as [prop name],
+			 r.location as [prop location]
+	  from parksgis.dpr.golfcourse_evw as l
+	  left join
+		   parksgis.dpr.property_evw as r
+	  on l.gispropnum = r.gispropnum) as t
+/*WHERE OMPPROPID IS NOT NULL*/ 
+union all
+select gispropnum as propnum,
+	   gispropnum as [prop id],
+	   dbo.fn_getpipboro(department) as boro,
+	   dbo.fn_get_pipdistrict(department) as ampsdistrict,
+	   signname as [prop name],
+	   signname as [site name],
+	   location as [prop location],
+	   location as [site location],
+	   round(acres, 3) as acres,
+       jurisdiction,
+	   null as typecategory,
+       featurestatus as gis_retired,
+	   'Schoolyard To Playground' AS sourcefc, 
+	   gisobjid
+from parksgis.dpr.schoolyard_to_playground_evw
+/*WHERE OMPPROPID IS NOT NULL*/ 
+union all
+select gispropnum as propnum,
+	   gispropnum as [prop id],
+	   dbo.fn_getpipboro(department) as boro,
+	   dbo.fn_get_pipdistrict(department) as ampsdistrict,
+	   description as [prop name],
+	   description as [site name],
+	   location as [prop location],
+	   location as [site location],
+	   null as acres,
+       jurisdiction,
+	   null as typecategory,
+       featurestatus as gis_retired,
+	   'Structure' AS sourcefc, 
+	   gisobjid
+	 /*Join to property_evw in order to get prop name and prop location*/
+from parksgis.dpr.structure_evw as l
+inner join
+	 (select distinct l.system
+	  from parksgis.dpr.structure_evw as l
+	  inner join
+		   parksgis.dpr.structurefunction_evw as r
+	  on l.system = r.system
+	  where lower(r.structurefunction) in ('recreation center', 'nature center')) as r
+on l.system = r.system
+/*AND OMPPROPID IS NOT NULL*/ 
+union all
+select gispropnum as propnum,
+	   omppropid as [prop id],
+	   dbo.fn_getpipboro(department) as boro,
+	   dbo.fn_get_pipdistrict(department) as ampsdistrict,
+	   [prop name],
+	   name as [site name],
+	   [prop location],
+	   location as [site location],
+	   round(acres, 3) as acres,
+       jurisdiction,
+	   null as typecategory,
+       null as gis_retired,
+	   'Unmapped' AS sourcefc, 
+	   null as gisobjid
+	 /*Join to property_evw in order to get prop name and prop location*/
+from (select l.*,
+			 r.signname as [prop name],
+			 r.location as [prop location]
+	  from parksgis.dpr.unmapped_gisallsites_evw as l
+	  left join
+		   parksgis.dpr.property_evw as r
+	  on l.gispropnum = r.gispropnum) as t
+/*where gispropnum not in ('BT02', 'BT04')*/ 
+union all
+select gispropnum as propnum,
+	   gispropnum as [prop id],
+	   dbo.fn_getpipboro(department) as boro,
+	   dbo.fn_get_pipdistrict(department) as ampsdistrict,
+	   signname as [prop name],
+	   signname as [site name],
+	   location as [prop location],
+	   location as [site location],
+	   round(acres, 3) as acres,
+       jurisdiction,
+	   null as typecategory,
+       featurestatus as gis_retired,
+	   'RestrictiveDeclarationSite' AS sourcefc, 
+	   gisobjid
+	 /*Join to property_evw in order to get prop name and prop location*/
+from parksgis.dpr.restrictivedeclarationsite_evw as l
+where omppropid not in('M404', 'B591', 'B595')
 
