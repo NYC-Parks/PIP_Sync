@@ -33,6 +33,6 @@ create table accessnewpip.dbo.tbl_ref_allsites(PropNum nvarchar(25),
 											   acres real,
 											   gisobjid int, 
 											   sourcefc nvarchar(30) not null,
-											   row_hash as hashbytes('SHA2_256', PropNum, [Prop ID], Boro, District, AMPSDistrict,
-																	 [Prop Name], [Site Name], [Prop Location], [Site Location], 
-																	 jurisdiction, typecategory, acres, gisobjid, sourcefc) persisted);
+											   row_hash as hashbytes('SHA2_256', PropNum, Boro, AMPSDistrict, [Prop Name], [Site Name], 
+																	 [Prop Location], [Site Location], jurisdiction, typecategory, acres, 
+																	 gisobjid, sourcefc) persisted);

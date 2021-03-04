@@ -9,6 +9,7 @@ go
 
 create view dbo.vw_pip_compatible_inspected_sites
 as
+with allsites as(
 select gispropnum as propnum,
 	   gispropnum as [prop id],
 	   dbo.fn_getpipboro(department) as boro,
@@ -23,7 +24,7 @@ select gispropnum as propnum,
        featurestatus as gis_retired,
 	   'Property' AS sourcefc, 
 	   gisobjid
-from [gisdata].parksgis.dpr.property_evw
+from openquery([gisdata], 'select * from parksgis.dpr.property_evw')
 union all
 /*Verify this should be gispropnum and not be parentid*/
 select gispropnum as propnum,
@@ -44,9 +45,9 @@ select gispropnum as propnum,
 from (select l.*,
 			 r.signname as [prop name],
 			 r.location as [prop location]
-	  from [gisdata].parksgis.dpr.playground_evw as l
+	  from openquery([gisdata], 'select * from parksgis.dpr.playground_evw') as l
 	  left join
-		   [gisdata].parksgis.dpr.property_evw as r
+		   openquery([gisdata], 'select * from parksgis.dpr.property_evw') as r
 	  on l.gispropnum = r.gispropnum) as t
 /*WHERE OMPPROPID IS NOT NULL*/ UNION ALL
 select gispropnum as propnum,
@@ -67,9 +68,9 @@ select gispropnum as propnum,
 from (select l.*,
 			 r.signname as [prop name],
 			 r.location as [prop location]
-	  from [gisdata].parksgis.dpr.greenstreet_evw as l
+	  from openquery([gisdata], 'select * from parksgis.dpr.greenstreet_evw') as l
 	  left join
-		   [gisdata].parksgis.dpr.property_evw as r
+		   openquery([gisdata], 'select * from parksgis.dpr.property_evw') as r
 	  on l.gispropnum = r.gispropnum) as t
 where omppropid not like 'XZ475' or
 	  retired like 'False'
@@ -93,9 +94,9 @@ select gispropnum as propnum,
 from (select l.*,
 			 r.signname as [prop name],
 			 r.location as [prop location]
-	  from [gisdata].parksgis.dpr.zone_evw as l
+	  from openquery([gisdata], 'select * from parksgis.dpr.zone_evw') as l
 	  left join
-		   [gisdata].parksgis.dpr.property_evw as r
+		   openquery([gisdata], 'select * from parksgis.dpr.property_evw') as r
 	  on l.gispropnum = r.gispropnum) as t
 /*WHERE OMPPROPID IS NOT NULL*/ 
 union all
@@ -117,9 +118,9 @@ select gispropnum as propnum,
 from (select l.*,
 			 r.signname as [prop name],
 			 r.location as [prop location]
-	  from [gisdata].parksgis.dpr.golfcourse_evw as l
+	  from openquery([gisdata], 'select * from parksgis.dpr.golfcourse_evw') as l
 	  left join
-		   [gisdata].parksgis.dpr.property_evw as r
+		   openquery([gisdata], 'select * from parksgis.dpr.property_evw') as r
 	  on l.gispropnum = r.gispropnum) as t
 /*WHERE OMPPROPID IS NOT NULL*/ 
 union all
@@ -137,7 +138,7 @@ select gispropnum as propnum,
        featurestatus as gis_retired,
 	   'Schoolyard To Playground' AS sourcefc, 
 	   gisobjid
-from [gisdata].parksgis.dpr.schoolyard_to_playground_evw
+from openquery([gisdata], 'select * from parksgis.dpr.schoolyard_to_playground_evw')
 /*WHERE OMPPROPID IS NOT NULL*/ 
 union all
 select gispropnum as propnum,
@@ -155,12 +156,12 @@ select gispropnum as propnum,
 	   'Structure' AS sourcefc, 
 	   gisobjid
 	 /*Join to property_evw in order to get prop name and prop location*/
-from [gisdata].parksgis.dpr.structure_evw as l
+from openquery([gisdata], 'select * from parksgis.dpr.structure_evw') as l
 inner join
 	 (select distinct l.system
-	  from [gisdata].parksgis.dpr.structure_evw as l
+	  from openquery([gisdata], 'select * from parksgis.dpr.structure_evw') as l
 	  inner join
-		   [gisdata].parksgis.dpr.structurefunction_evw as r
+		   openquery([gisdata], 'select * from parksgis.dpr.structurefunction_evw') as r
 	  on l.system = r.system
 	  where lower(r.structurefunction) in ('recreation center', 'nature center')) as r
 on l.system = r.system
@@ -184,9 +185,9 @@ select gispropnum as propnum,
 from (select l.*,
 			 r.signname as [prop name],
 			 r.location as [prop location]
-	  from [gisdata].parksgis.dpr.unmapped_gisallsites_evw as l
+	  from openquery([gisdata], 'select * from parksgis.dpr.unmapped_gisallsites_evw') as l
 	  left join
-		   [gisdata].parksgis.dpr.property_evw as r
+		   openquery([gisdata], 'select * from parksgis.dpr.property_evw') as r
 	  on l.gispropnum = r.gispropnum) as t
 /*where gispropnum not in ('BT02', 'BT04')*/ 
 union all
@@ -205,6 +206,26 @@ select gispropnum as propnum,
 	   'RestrictiveDeclarationSite' AS sourcefc, 
 	   gisobjid
 	 /*Join to property_evw in order to get prop name and prop location*/
-from [gisdata].parksgis.dpr.restrictivedeclarationsite_evw as l
-where omppropid not in('M404', 'B591', 'B595')
+from openquery([gisdata], 'select * from parksgis.dpr.restrictivedeclarationsite_evw') as l
+where omppropid not in('M404', 'B591', 'B595'))
+
+select propnum, 
+	   [prop id],
+	   boro, 
+	   ampsdistrict,
+	   [prop name],
+	   [site name],
+	   [prop location],
+	   [site location],
+	   jurisdiction,
+	   typecategory,
+	   acres,
+	   gisobjid,
+	   sourcefc,
+	   shape,
+	   /*Create the row_hash so comparison of data is easier*/
+	   hashbytes('SHA2_256', PropNum, Boro, AMPSDistrict, [Prop Name], [Site Name], [Prop Location], [Site Location], 
+							 jurisdiction, typecategory, acres, gisobjid, sourcefc) as row_hash
+from allsites
+	   
 
