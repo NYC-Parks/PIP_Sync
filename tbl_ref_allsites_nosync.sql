@@ -17,22 +17,22 @@
 	       vis. His ad sonet probatus torquatos, ut vim tempor vidisse deleniti.>  									   
 																													   												
 ***********************************************************************************************************************/
-if object_id('accessnewpip.dbo.tbl_ref_allsites') is not null
-	drop table accessnewpip.dbo.tbl_ref_allsites;
+if object_id('accessnewpip.dbo.tbl_ref_allsites_nosync') is not null
+	drop table accessnewpip.dbo.tbl_ref_allsites_nosync;
 
-create table accessnewpip.dbo.tbl_ref_allsites(PropNum nvarchar(25),
-											   [Prop ID] nvarchar(15) primary key,
-											   Boro nvarchar(1),
-											   AMPSDistrict nvarchar(25),
-											   [Prop Name] nvarchar(128),
-											   [Site Name] nvarchar(100),
-											   [Prop Location] nvarchar(128),
-											   [Site Location] nvarchar(128),
-											   jurisdiction nvarchar(25),
-											   typecategory nvarchar(100),
-											   acres real,
-											   gisobjid int, 
-											   sourcefc nvarchar(30) not null,
-											   row_hash as hashbytes('SHA2_256', concat(PropNum, Boro, AMPSDistrict, [Prop Name], [Site Name], 
-																	 [Prop Location], [Site Location], jurisdiction, typecategory, acres, 
-																	 gisobjid, sourcefc)) persisted);
+create table accessnewpip.dbo.tbl_ref_allsites_nosync(PropNum nvarchar(25),
+											          [Prop ID] nvarchar(15) not null,
+											          Boro nvarchar(1),
+											          AMPSDistrict nvarchar(25),
+											          [Prop Name] nvarchar(128),
+											          [Site Name] nvarchar(100),
+											          [Prop Location] nvarchar(128),
+											          [Site Location] nvarchar(128),
+											          jurisdiction nvarchar(25),
+											          typecategory nvarchar(100),
+											          acres real,
+											          gisobjid int, 
+											          sourcefc nvarchar(30) not null,
+											          row_hash as hashbytes('SHA2_256', concat(PropNum, Boro, AMPSDistrict, [Prop Name], [Site Name], 
+																							   [Prop Location], [Site Location], jurisdiction, typecategory, acres, 
+																							   gisobjid, sourcefc)) persisted);

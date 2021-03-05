@@ -12,8 +12,8 @@ as
 with allsites as(
 select gispropnum as propnum,
 	   gispropnum as [prop id],
-	   dbo.fn_getpipboro(department) as boro,
-	   dbo.fn_get_pipdistrict(department) as ampsdistrict,
+	   accessnewpip.dbo.fn_get_pipboro(department) as boro,
+	   accessnewpip.dbo.fn_get_pipdistrict(department) as ampsdistrict,
 	   signname as [prop name],
 	   signname as [site name],
 	   location as [prop location],
@@ -23,14 +23,15 @@ select gispropnum as propnum,
 	   typecategory,
        featurestatus as gis_retired,
 	   'Property' AS sourcefc, 
-	   gisobjid
+	   gisobjid,
+	   shape
 from openquery([gisdata], 'select * from parksgis.dpr.property_evw')
 union all
 /*Verify this should be gispropnum and not be parentid*/
 select gispropnum as propnum,
 	   omppropid as [prop id],
-	   dbo.fn_getpipboro(department) as boro,
-	   dbo.fn_get_pipdistrict(department) as ampsdistrict,
+	   accessnewpip.dbo.fn_get_pipboro(department) as boro,
+	   accessnewpip.dbo.fn_get_pipdistrict(department) as ampsdistrict,
 	   [prop name],
 	   signname as [site name],
 	   [prop location],
@@ -40,7 +41,8 @@ select gispropnum as propnum,
 	   null as typecategory,
        featurestatus as gis_retired,
 	   'Playground' AS sourcefc, 
-	   gisobjid
+	   gisobjid,
+	   shape
 	 /*Join to property_evw in order to get prop name and prop location*/
 from (select l.*,
 			 r.signname as [prop name],
@@ -52,8 +54,8 @@ from (select l.*,
 /*WHERE OMPPROPID IS NOT NULL*/ UNION ALL
 select gispropnum as propnum,
 	   omppropid as [prop id],
-	   dbo.fn_getpipboro(department) as boro,
-	   dbo.fn_get_pipdistrict(department) as ampsdistrict,
+	   accessnewpip.dbo.fn_get_pipboro(department) as boro,
+	   accessnewpip.dbo.fn_get_pipdistrict(department) as ampsdistrict,
 	   [prop name],
 	   sitename as [site name],
 	   [prop location],
@@ -63,7 +65,8 @@ select gispropnum as propnum,
 	   null as typecategory,
        featurestatus as gis_retired,
 	   'Greenstreet' AS sourcefc, 
-	   gisobjid
+	   gisobjid,
+	   shape
 	 /*Join to property_evw in order to get prop name and prop location*/
 from (select l.*,
 			 r.signname as [prop name],
@@ -78,8 +81,8 @@ where omppropid not like 'XZ475' or
 union all
 select gispropnum as propnum,
 	   omppropid as [prop id],
-	   dbo.fn_getpipboro(department) as boro,
-	   dbo.fn_get_pipdistrict(department) as ampsdistrict,
+	   accessnewpip.dbo.fn_get_pipboro(department) as boro,
+	   accessnewpip.dbo.fn_get_pipdistrict(department) as ampsdistrict,
 	   [prop name],
 	   sitename as [site name],
 	   [prop location],
@@ -89,7 +92,8 @@ select gispropnum as propnum,
 	   null as typecategory,
        featurestatus as gis_retired,
 	   'Zone' AS sourcefc, 
-	   gisobjid
+	   gisobjid,
+	   shape
 	 /*Join to property_evw in order to get prop name and prop location*/
 from (select l.*,
 			 r.signname as [prop name],
@@ -102,8 +106,8 @@ from (select l.*,
 union all
 select gispropnum as propnum,
 	   omppropid as [prop id],
-	   dbo.fn_getpipboro(department) as boro,
-	   dbo.fn_get_pipdistrict(department) as ampsdistrict,
+	   accessnewpip.dbo.fn_get_pipboro(department) as boro,
+	   accessnewpip.dbo.fn_get_pipdistrict(department) as ampsdistrict,
 	   [prop name],
 	   name as [site name],
 	   [prop location],
@@ -113,7 +117,8 @@ select gispropnum as propnum,
 	   null as typecategory,
        featurestatus as gis_retired,
 	   'Golfcourse' AS sourcefc, 
-	   gisobjid
+	   gisobjid,
+	   shape
 	 /*Join to property_evw in order to get prop name and prop location*/
 from (select l.*,
 			 r.signname as [prop name],
@@ -126,8 +131,8 @@ from (select l.*,
 union all
 select gispropnum as propnum,
 	   gispropnum as [prop id],
-	   dbo.fn_getpipboro(department) as boro,
-	   dbo.fn_get_pipdistrict(department) as ampsdistrict,
+	   accessnewpip.dbo.fn_get_pipboro(department) as boro,
+	   accessnewpip.dbo.fn_get_pipdistrict(department) as ampsdistrict,
 	   signname as [prop name],
 	   signname as [site name],
 	   location as [prop location],
@@ -137,14 +142,15 @@ select gispropnum as propnum,
 	   null as typecategory,
        featurestatus as gis_retired,
 	   'Schoolyard To Playground' AS sourcefc, 
-	   gisobjid
+	   null as gisobjid,
+	   shape
 from openquery([gisdata], 'select * from parksgis.dpr.schoolyard_to_playground_evw')
 /*WHERE OMPPROPID IS NOT NULL*/ 
 union all
 select gispropnum as propnum,
 	   gispropnum as [prop id],
-	   dbo.fn_getpipboro(department) as boro,
-	   dbo.fn_get_pipdistrict(department) as ampsdistrict,
+	   accessnewpip.dbo.fn_get_pipboro(department) as boro,
+	   accessnewpip.dbo.fn_get_pipdistrict(department) as ampsdistrict,
 	   description as [prop name],
 	   description as [site name],
 	   location as [prop location],
@@ -154,7 +160,8 @@ select gispropnum as propnum,
 	   null as typecategory,
        featurestatus as gis_retired,
 	   'Structure' AS sourcefc, 
-	   gisobjid
+	   gisobjid,
+	   shape
 	 /*Join to property_evw in order to get prop name and prop location*/
 from openquery([gisdata], 'select * from parksgis.dpr.structure_evw') as l
 inner join
@@ -169,8 +176,8 @@ on l.system = r.system
 union all
 select gispropnum as propnum,
 	   omppropid as [prop id],
-	   dbo.fn_getpipboro(department) as boro,
-	   dbo.fn_get_pipdistrict(department) as ampsdistrict,
+	   accessnewpip.dbo.fn_get_pipboro(department) as boro,
+	   accessnewpip.dbo.fn_get_pipdistrict(department) as ampsdistrict,
 	   [prop name],
 	   name as [site name],
 	   [prop location],
@@ -180,7 +187,8 @@ select gispropnum as propnum,
 	   null as typecategory,
        null as gis_retired,
 	   'Unmapped' AS sourcefc, 
-	   null as gisobjid
+	   null as gisobjid,
+	   null shape
 	 /*Join to property_evw in order to get prop name and prop location*/
 from (select l.*,
 			 r.signname as [prop name],
@@ -193,8 +201,8 @@ from (select l.*,
 union all
 select gispropnum as propnum,
 	   gispropnum as [prop id],
-	   dbo.fn_getpipboro(department) as boro,
-	   dbo.fn_get_pipdistrict(department) as ampsdistrict,
+	   accessnewpip.dbo.fn_get_pipboro(department) as boro,
+	   accessnewpip.dbo.fn_get_pipdistrict(department) as ampsdistrict,
 	   signname as [prop name],
 	   signname as [site name],
 	   location as [prop location],
@@ -204,7 +212,8 @@ select gispropnum as propnum,
 	   null as typecategory,
        featurestatus as gis_retired,
 	   'RestrictiveDeclarationSite' AS sourcefc, 
-	   gisobjid
+	   null as gisobjid,
+	   shape
 	 /*Join to property_evw in order to get prop name and prop location*/
 from openquery([gisdata], 'select * from parksgis.dpr.restrictivedeclarationsite_evw') as l
 where omppropid not in('M404', 'B591', 'B595'))
@@ -224,8 +233,8 @@ select propnum,
 	   sourcefc,
 	   shape,
 	   /*Create the row_hash so comparison of data is easier*/
-	   hashbytes('SHA2_256', PropNum, Boro, AMPSDistrict, [Prop Name], [Site Name], [Prop Location], [Site Location], 
-							 jurisdiction, typecategory, acres, gisobjid, sourcefc) as row_hash
+	   hashbytes('SHA2_256', concat(PropNum, Boro, AMPSDistrict, [Prop Name], [Site Name], [Prop Location], [Site Location], 
+							       jurisdiction, typecategory, acres, gisobjid, sourcefc)) as row_hash
 from allsites
 	   
 
