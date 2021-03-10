@@ -20,11 +20,13 @@
 if object_id('accessnewpip.dbo.tbl_pip_allsites') is not null
 	drop table accessnewpip.dbo.tbl_pip_allsites;
 
-create table accessnewpip.dbo.tbl_pip_allsites([Prop ID] nvarchar(15) unique foreign key references accessnewpip.dbo.tbl_ref_allsites([Prop ID]),
-											   Category nvarchar(128) foreign key references accessnewpip.dbo.tbl_ref_category(Category),
-											   [Sub-Category] nvarchar(40) foreign key references accessnewpip.dbo.tbl_ref_subcategory([Sub-Category]),
-											   Rated bit not null,
-											   [Reason Not Rated] nvarchar(128),
-											   [Safety Index] smallint,
-											   [ComfortStation] smallint,
-											   Comments nvarchar(255));
+create table accessnewpip.dbo.tbl_pip_allsites([prop id] nvarchar(15) unique foreign key references accessnewpip.dbo.tbl_ref_allsites([prop id]),
+											   category nvarchar(128), --foreign key references accessnewpip.dbo.tbl_ref_category(category),
+											   [sub-category] nvarchar(40), --foreign key references accessnewpip.dbo.tbl_ref_subcategory([sub-category]),
+											   rated bit not null,
+											   [reason not rated] nvarchar(128),
+											   [safety index] smallint,
+											   comfortstation smallint,
+											   comments nvarchar(255),
+											   created_date datetime default getdate(),
+											   updated_date datetime);

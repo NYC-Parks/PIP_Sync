@@ -33,6 +33,8 @@ create table accessnewpip.dbo.tbl_ref_allsites_nosync(PropNum nvarchar(25),
 											          acres real,
 											          gisobjid int, 
 											          sourcefc nvarchar(30) not null,
+													  created_date datetime default getdate(),
+													  sync_issue nvarchar(500) not null,
 											          row_hash as hashbytes('SHA2_256', concat(PropNum, Boro, AMPSDistrict, [Prop Name], [Site Name], 
 																							   [Prop Location], [Site Location], jurisdiction, typecategory, acres, 
 																							   gisobjid, sourcefc)) persisted);

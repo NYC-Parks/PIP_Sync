@@ -75,7 +75,7 @@ from (select l.*,
 	  left join
 		   openquery([gisdata], 'select * from parksgis.dpr.property_evw') as r
 	  on l.gispropnum = r.gispropnum) as t
-where omppropid not like 'XZ475' or
+where --omppropid not like 'XZ475' or
 	  retired like 'False'
 /*AND OMPPROPID IS NOT NULL*/ 
 union all
@@ -216,7 +216,7 @@ select gispropnum as propnum,
 	   shape
 	 /*Join to property_evw in order to get prop name and prop location*/
 from openquery([gisdata], 'select * from parksgis.dpr.restrictivedeclarationsite_evw') as l
-where omppropid not in('M404', 'B591', 'B595'))
+/*where omppropid not in('M404', 'B591', 'B595')*/)
 
 select propnum, 
 	   [prop id],
@@ -234,7 +234,8 @@ select propnum,
 	   shape,
 	   /*Create the row_hash so comparison of data is easier*/
 	   hashbytes('SHA2_256', concat(PropNum, Boro, AMPSDistrict, [Prop Name], [Site Name], [Prop Location], [Site Location], 
-							       jurisdiction, typecategory, acres, gisobjid, sourcefc)) as row_hash
+							       jurisdiction, typecategory, acres, gisobjid, sourcefc)) as row_hash,
+	   count(*) over(partition by [prop id] order by [prop id]) as n_propid
 from allsites
 	   
 
