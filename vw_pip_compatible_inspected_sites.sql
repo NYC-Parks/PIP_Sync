@@ -148,7 +148,7 @@ from openquery([gisdata], 'select * from parksgis.dpr.schoolyard_to_playground_e
 /*WHERE OMPPROPID IS NOT NULL*/ 
 union all
 select gispropnum as propnum,
-	   gispropnum as [prop id],
+	   omppropid as [prop id],
 	   accessnewpip.dbo.fn_get_pipboro(department) as boro,
 	   accessnewpip.dbo.fn_get_pipdistrict(department) as ampsdistrict,
 	   description as [prop name],
