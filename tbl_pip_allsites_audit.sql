@@ -17,15 +17,18 @@
 	       vis. His ad sonet probatus torquatos, ut vim tempor vidisse deleniti.>  									   
 																													   												
 ***********************************************************************************************************************/
-if object_id('accessnewpip.dbo.tbl_pip_allsites') is not null
-	drop table accessnewpip.dbo.tbl_pip_allsites;
+if object_id('accessnewpip.dbo.tbl_pip_allsites_audit') is not null
+	drop table accessnewpip.dbo.tbl_pip_allsites_audit;
 
-create table accessnewpip.dbo.tbl_pip_allsites([prop id] nvarchar(15) not null unique foreign key references accessnewpip.dbo.tbl_ref_allsites([prop id]),
-											   category nvarchar(128), --foreign key references accessnewpip.dbo.tbl_ref_category(category),
-											   [sub-category] nvarchar(40), --foreign key references accessnewpip.dbo.tbl_ref_subcategory([sub-category]),
-											   rated bit not null default 0,
-											   [reason not rated] nvarchar(128),
-											   [safety index] smallint,
-											   comfortstation smallint,
-											   comments nvarchar(255),
-											   created_date datetime not null default getdate());
+create table accessnewpip.dbo.tbl_pip_allsites_audit([prop id] nvarchar(15) not null foreign key references accessnewpip.dbo.tbl_ref_allsites([prop id]),
+													 category nvarchar(128), --foreign key references accessnewpip.dbo.tbl_ref_category(category),
+													 [sub-category] nvarchar(40), --foreign key references accessnewpip.dbo.tbl_ref_subcategory([sub-category]),
+													 rated bit not null default 0,
+													 [reason not rated] nvarchar(128),
+													 [safety index] smallint,
+													 comfortstation smallint,
+													 comments nvarchar(255),
+													 created_date datetime,
+													 dml_verb nvarchar(1),
+													 updated_date datetime default getdate(),
+													 updated_user nvarchar(20));

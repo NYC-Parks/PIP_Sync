@@ -17,15 +17,36 @@
 	       vis. His ad sonet probatus torquatos, ut vim tempor vidisse deleniti.>  									   
 																													   												
 ***********************************************************************************************************************/
-if object_id('accessnewpip.dbo.tbl_pip_allsites') is not null
-	drop table accessnewpip.dbo.tbl_pip_allsites;
+/*Truncate or delete all existing data*/
+begin transaction
+truncate table accessnewpip.dbo.tbl_ref_allsites_nosync
+truncate table accessnewpip.dbo.tbl_pip_allsites
+truncate table accessnewpip.dbo.tbl_pip_allsites_audit
+delete 
+from accessnewpip.dbo.tbl_ref_allsites
+commit
 
-create table accessnewpip.dbo.tbl_pip_allsites([prop id] nvarchar(15) not null unique foreign key references accessnewpip.dbo.tbl_ref_allsites([prop id]),
-											   category nvarchar(128), --foreign key references accessnewpip.dbo.tbl_ref_category(category),
-											   [sub-category] nvarchar(40), --foreign key references accessnewpip.dbo.tbl_ref_subcategory([sub-category]),
-											   rated bit not null default 0,
-											   [reason not rated] nvarchar(128),
-											   [safety index] smallint,
-											   comfortstation smallint,
-											   comments nvarchar(255),
-											   created_date datetime not null default getdate());
+/*Execute the stored procedures that perform the merges*/
+exec accessnewpip.dbo.sp_m_tbl_ref_allsites
+exec accessnewpip.dbo.sp_m_tbl_ref_allsites_nosync
+
+/*Test some updates in the audit*/
+begin transaction
+	update accessnewpip.dbo.tbl_pip_allsites
+		set rated = 1
+		where [prop id] = 'B001'
+commit;
+
+begin transaction
+	update accessnewpip.dbo.tbl_pip_allsites
+		set rated = 0
+		where [prop id] = 'B001'
+commit;
+
+begin transaction
+	update accessnewpip.dbo.tbl_pip_allsites
+		set rated = 1
+		where [prop id] = 'B001'
+commit;
+
+/*Query results*/

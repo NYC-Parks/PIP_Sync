@@ -19,7 +19,7 @@
 ***********************************************************************************************************************/
 use accessnewpip
 go
-
+--drop trigger dbo.trg_fi_tbl_ref_allsites
 create trigger dbo.trg_fi_tbl_ref_allsites
 on accessnewpip.dbo.tbl_ref_allsites
 for insert as
