@@ -17,19 +17,20 @@
 	       vis. His ad sonet probatus torquatos, ut vim tempor vidisse deleniti.>  									   
 																													   												
 ***********************************************************************************************************************/
-if object_id('accessnewpip.dbo.tbl_pip_allsites_audit') is not null
-	drop table accessnewpip.dbo.tbl_pip_allsites_audit;
+if object_id('accessnewpip.dbo.tbl_ref_allsites_audit') is not null
+	drop table accessnewpip.dbo.tbl_ref_allsites_audit;
 
-create table accessnewpip.dbo.tbl_pip_allsites_audit(pip_allsites_audit_id int identity(1,1) not null primary key,
-													 [prop id] nvarchar(15) not null foreign key references accessnewpip.dbo.tbl_ref_allsites([prop id]),
-													 category nvarchar(128), --foreign key references accessnewpip.dbo.tbl_ref_category(category),
-													 [sub-category] nvarchar(40), --foreign key references accessnewpip.dbo.tbl_ref_subcategory([sub-category]),
-													 rated bit not null default 0,
-													 [reason not rated] nvarchar(128),
-													 [safety index] smallint,
-													 comfortstation smallint,
-													 comments nvarchar(255),
-													 created_date datetime,
-													 dml_verb nvarchar(1),
-													 updated_date datetime default getdate(),
-													 updated_user nvarchar(20));
+create table accessnewpip.dbo.tbl_ref_allsites_audit(PropNum nvarchar(25),
+													 [Prop ID] nvarchar(15) not null foreign key references accessnewpip.dbo.tbl_ref_allsites([Prop ID]),
+													 Boro nvarchar(1),
+													 AMPSDistrict nvarchar(25),
+													 [Prop Name] nvarchar(128),
+													 [Site Name] nvarchar(100),
+													 [Prop Location] nvarchar(128),
+													 [Site Location] nvarchar(128),
+													 jurisdiction nvarchar(25),
+													 typecategory nvarchar(100),
+													 acres real,
+													 gisobjid int, 
+													 sourcefc nvarchar(30) not null,
+													 created_date datetime default getdate());

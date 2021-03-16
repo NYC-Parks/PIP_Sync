@@ -17,19 +17,39 @@
 	       vis. His ad sonet probatus torquatos, ut vim tempor vidisse deleniti.>  									   
 																													   												
 ***********************************************************************************************************************/
-if object_id('accessnewpip.dbo.tbl_pip_allsites_audit') is not null
-	drop table accessnewpip.dbo.tbl_pip_allsites_audit;
-
-create table accessnewpip.dbo.tbl_pip_allsites_audit(pip_allsites_audit_id int identity(1,1) not null primary key,
-													 [prop id] nvarchar(15) not null foreign key references accessnewpip.dbo.tbl_ref_allsites([prop id]),
-													 category nvarchar(128), --foreign key references accessnewpip.dbo.tbl_ref_category(category),
-													 [sub-category] nvarchar(40), --foreign key references accessnewpip.dbo.tbl_ref_subcategory([sub-category]),
-													 rated bit not null default 0,
-													 [reason not rated] nvarchar(128),
-													 [safety index] smallint,
-													 comfortstation smallint,
-													 comments nvarchar(255),
-													 created_date datetime,
-													 dml_verb nvarchar(1),
-													 updated_date datetime default getdate(),
-													 updated_user nvarchar(20));
+use accessnewpip
+go
+--drop trigger dbo.trg_fi_tbl_ref_allsites
+create trigger dbo.trg_fu_tbl_ref_allsites
+on accessnewpip.dbo.tbl_ref_allsites
+for update as
+	begin transaction
+		insert into accessnewpip.dbo.tbl_ref_allsites_audit(propnum,
+															[prop id],
+															boro,
+															ampsdistrict,
+															[prop name],
+															[site name],
+															[prop location],
+															[site location],
+															jurisdiction,
+															typecategory,
+															acres,
+															gisobjid, 
+															sourcefc)
+			select propnum,
+				   [prop id],
+				   boro,
+				   ampsdistrict,
+				   [prop name],
+				   [site name],
+				   [prop location],
+				   [site location],
+				   jurisdiction,
+				   typecategory,
+				   acres,
+				   gisobjid, 
+				   sourcefc
+			/*Use the record from the deleted table which represents the previous values for a given record*/
+			from deleted
+	commit;
