@@ -1,71 +1,68 @@
-USE [accessNewPIP]
-GO
+use accessnewpip
+go
 
-SET ANSI_NULLS ON
-GO
+set ansi_nulls on
+go
 
-SET QUOTED_IDENTIFIER ON
-GO
+set quoted_identifier on
+go
 
-CREATE VIEW [dbo].[ALLSITES] AS
-SELECT TOP 100 PERCENT
-	G.PropNum
-	, A.[Prop ID]
-	, G.Boro
-	, G.District
-	, G.AMPSDistrict
-	, G.[Prop Name]
-	, G.[Site Name]
-	, G.[Prop Location]
-	, G.[Site Location]
-	, G.Acres --CAST(G.Acres AS REAL) AS Acres
-	, G.Category
-	, G.[Sub-Category]
-	, G.Comments
-	, G.Rated
-	, G.[Reason Not Rated]
-	, G.[Sub-Properties Rated]
-	, G.[Sub-Property]
+alter view dbo.allsites as
+	select top 100 percent l.propnum,
+		   l.[prop id],
+		   l.boro,
+		   null as district,
+		   l.ampsdistrict,
+		   l.[prop name],
+		   l.[site name],
+		   l.[prop location],
+		   l.[site location],
+		   l.acres,
+		   r.category,
+		   r.[sub-category],
+		   r.comments,
+		   r.rated,
+		   r.[reason not rated],
+		   null as [sub-properties rated],
+		   null as [sub-property],   
+		   null as [gsgroupproject], 
+		   null as [lastinspection],
+		   null as [lastinspectdate],
+		   null as [lastinspectedseason],
+		   null as [lastinspectedround],
+		   null as [lastinspectyear],
+		   null as [sort],  
+		   r.[safety index],
+		   null as [map # (hagstrom)],
+		   null as [map grid (hagstrom)],
+		   null as [council district],
+		   null as zipcode,
+		   null as pipzipcode,
+		   null as communityboard,
+		   l.typecategory,
+		   l.jurisdiction,
+		   null as [nysassembly],
+		   null as [nyssenate],
+		   null as [uscongress],
+		   null as precinct,
+		   r.comfortstation,	   
+		   null as cscount,
+		   l.[prop id] as pip_prop_id,
+		   r.created_date as pipcreated,
+		   l.created_date as giscreated,
+		   null as [gis_retired],
+		   null as [gisdistrict],
+		   null as [permitdistrict],
+		   null as [gisboro],
+		   null as [gis site location], 
+		   l.sourcefc,
+		   l.gisobjid
+	from accessnewpip.dbo.tbl_ref_allsites as l
+	left join
+		 accessnewpip.dbo.tbl_pip_allsites as r
+	on l.[prop id] = r.[prop id]
+	order by l.propnum, l.[prop id];
 
-	, A.[GSGroupProject] 
-	, A.[LastInspection]
-	, A.[LastInspectDate]
-	, A.[LastInspectedSeason]
-	, A.[LastInspectedRound]
-	, A.[LastInspectYear]
-	, A.[Sort]
-
-	, G.[Safety Index]
-	, G.[Map # (Hagstrom)]
-	, G.[Map Grid (Hagstrom)]
-	, G.[Council District]
-	, G.ZipCode
-	, G.PIPZipCode
-	, G.COMMUNITYBOARD
-	, G.TypeCategory
-	, G.Jurisdiction
-	, G.[NYSAssembly]
-    , G.[NYSSenate]
-    , G.[USCongress]
-	, G.Precinct
-	, G.ComfortStation
-
-	, G.CSCount
-	, A.[Prop ID] AS PIP_PROP_ID
-	, G.pipCreated
-	, G.[GISCreated]
-    , G.[GIS_Retired]
-    , G.[GISDistrict]
-    , G.[PermitDistrict]
-    , G.[GISBoro]
-    , G.[GIS Site Location]
-
-	, G.SourceFC
-	, G.GISOBJID
-FROM dbo.ALLSITES_GIS AS G 
-	RIGHT OUTER JOIN dbo.ALLSITES_PIP AS A ON G.[Prop ID] = A.[Prop ID]
-ORDER BY G.PropNum, G.[Prop ID]
-
-GO
+go
 
 
