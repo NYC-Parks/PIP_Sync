@@ -21,7 +21,7 @@ if object_id('accessnewpip.dbo.tbl_ref_allsites_audit') is not null
 	drop table accessnewpip.dbo.tbl_ref_allsites_audit;
 
 create table accessnewpip.dbo.tbl_ref_allsites_audit(PropNum nvarchar(25),
-													 [Prop ID] nvarchar(15) not null foreign key references accessnewpip.dbo.tbl_ref_allsites([Prop ID]),
+													 [Prop ID] nvarchar(15) not null foreign key references accessnewpip.dbo.tbl_ref_allsites([Prop ID]) on delete cascade,
 													 Boro nvarchar(1),
 													 AMPSDistrict nvarchar(25),
 													 [Prop Name] nvarchar(128),
@@ -33,4 +33,5 @@ create table accessnewpip.dbo.tbl_ref_allsites_audit(PropNum nvarchar(25),
 													 acres real,
 													 gisobjid int, 
 													 sourcefc nvarchar(30) not null,
+													 gis_deleted bit,
 													 created_date datetime default getdate());

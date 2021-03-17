@@ -41,7 +41,8 @@ create procedure dbo.sp_m_tbl_ref_allsites as
 							typecategory = src.typecategory,
 							acres = src.acres,
 							gisobjid = src.gisobjid,
-							sourcefc = src.sourcefc
+							sourcefc = src.sourcefc,
+							gis_deleted = 0
 		/*If the record is in GIS, but not in PIP then perform an insert.*/
 		when not matched by target and
 		     src.[prop id] is not null and
@@ -60,6 +61,9 @@ create procedure dbo.sp_m_tbl_ref_allsites as
 						gisobjid,
 						sourcefc)
 				values(src.[prop id], src.propnum, src.boro, src.ampsdistrict, src.[prop name], src.[site name], src.[prop location], src.[site location],
-					   src.jurisdiction, src.typecategory, src.acres, src.gisobjid, src.sourcefc);
+					   src.jurisdiction, src.typecategory, src.acres, src.gisobjid, src.sourcefc)
 		/*Skip the delete section because we can't break any keys and the cascade effect is not known.*/
+		/*If the record is in PIP, but not GIS then perform an update and update the flag, but DO NOT DELETE records.*/
+		when not matched by source
+			then update set gis_deleted = 1;
 	commit;

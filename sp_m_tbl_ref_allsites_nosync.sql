@@ -71,6 +71,8 @@ create procedure dbo.sp_m_tbl_ref_allsites_nosync as
 						sourcefc,
 						sync_issue)
 				values(src.[prop id], src.propnum, src.boro, src.ampsdistrict, src.[prop name], src.[site name], src.[prop location], src.[site location],
-					   src.jurisdiction, src.typecategory, src.acres, src.gisobjid, src.sourcefc, src.sync_issue);
-		/*Skip the delete section because we can't break any keys and the cascade effect is not known.*/
+					   src.jurisdiction, src.typecategory, src.acres, src.gisobjid, src.sourcefc, src.sync_issue)
+		/*Delete records from this table they no longer have a duplicate prop id*/
+		when not matched by source
+			then delete;
 	commit;
