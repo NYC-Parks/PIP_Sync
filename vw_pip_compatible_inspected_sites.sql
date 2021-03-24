@@ -27,14 +27,13 @@ select gispropnum as propnum,
 	   shape
 from openquery([gisdata], 'select * from parksgis.dpr.property_evw')
 union all
-/*Verify this should be gispropnum and not be parentid*/
 select gispropnum as propnum,
 	   omppropid as [prop id],
 	   accessnewpip.dbo.fn_get_pipboro(department) as boro,
 	   accessnewpip.dbo.fn_get_pipdistrict(department) as ampsdistrict,
-	   [prop name],
+	   isnull([prop name], signname) as [prop name],
 	   signname as [site name],
-	   [prop location],
+	   isnull([prop location], location) as [prop location],
 	   location as [site location],
 	   round(acres, 3) as acres,
        jurisdiction,
@@ -50,15 +49,16 @@ from (select l.*,
 	  from openquery([gisdata], 'select * from parksgis.dpr.playground_evw') as l
 	  left join
 		   openquery([gisdata], 'select * from parksgis.dpr.property_evw') as r
-	  on l.gispropnum = r.gispropnum) as t
-/*WHERE OMPPROPID IS NOT NULL*/ UNION ALL
+	  on l.gispropnum = r.gispropnum and
+		 l.omppropid != l.gispropnum) as t
+union all
 select gispropnum as propnum,
 	   omppropid as [prop id],
 	   accessnewpip.dbo.fn_get_pipboro(department) as boro,
 	   accessnewpip.dbo.fn_get_pipdistrict(department) as ampsdistrict,
-	   [prop name],
+	   isnull([prop name], sitename) as [prop name],
 	   sitename as [site name],
-	   [prop location],
+	   isnull([prop location], location) as [prop location],
 	   location as [site location],
 	   round(acres, 3) as acres,
        jurisdiction,
@@ -74,18 +74,16 @@ from (select l.*,
 	  from openquery([gisdata], 'select * from parksgis.dpr.greenstreet_evw') as l
 	  left join
 		   openquery([gisdata], 'select * from parksgis.dpr.property_evw') as r
-	  on l.gispropnum = r.gispropnum) as t
-/*where omppropid not like 'XZ475' or
-	  retired like 'False'*/
-/*AND OMPPROPID IS NOT NULL*/ 
+	  on l.gispropnum = r.gispropnum and
+		 l.omppropid != l.gispropnum) as t
 union all
 select gispropnum as propnum,
 	   omppropid as [prop id],
 	   accessnewpip.dbo.fn_get_pipboro(department) as boro,
 	   accessnewpip.dbo.fn_get_pipdistrict(department) as ampsdistrict,
-	   [prop name],
+	   isnull([prop name], sitename) as [prop name],
 	   sitename as [site name],
-	   [prop location],
+	   isnull([prop location], location) as [prop location],
 	   location as [site location],
 	   round(acres, 3) as acres,
        jurisdiction, 
@@ -101,16 +99,16 @@ from (select l.*,
 	  from openquery([gisdata], 'select * from parksgis.dpr.zone_evw') as l
 	  left join
 		   openquery([gisdata], 'select * from parksgis.dpr.property_evw') as r
-	  on l.gispropnum = r.gispropnum) as t
-/*WHERE OMPPROPID IS NOT NULL*/ 
+	  on l.gispropnum = r.gispropnum and
+		 l.omppropid != l.gispropnum) as t
 union all
 select gispropnum as propnum,
 	   omppropid as [prop id],
 	   accessnewpip.dbo.fn_get_pipboro(department) as boro,
 	   accessnewpip.dbo.fn_get_pipdistrict(department) as ampsdistrict,
-	   [prop name],
+	   isnull([prop name], name) as [prop name],
 	   name as [site name],
-	   [prop location],
+	   isnull([prop location], location) as [prop location],
 	   location as [site location],
 	   round(acres, 3) as acres,
        jurisdiction,
@@ -126,8 +124,8 @@ from (select l.*,
 	  from openquery([gisdata], 'select * from parksgis.dpr.golfcourse_evw') as l
 	  left join
 		   openquery([gisdata], 'select * from parksgis.dpr.property_evw') as r
-	  on l.gispropnum = r.gispropnum) as t
-/*WHERE OMPPROPID IS NOT NULL*/ 
+	  on l.gispropnum = r.gispropnum and
+		 l.omppropid != l.gispropnum) as t
 union all
 select gispropnum as propnum,
 	   gispropnum as [prop id],
@@ -145,7 +143,6 @@ select gispropnum as propnum,
 	   null as gisobjid,
 	   shape
 from openquery([gisdata], 'select * from parksgis.dpr.schoolyard_to_playground_evw')
-/*WHERE OMPPROPID IS NOT NULL*/ 
 union all
 select gispropnum as propnum,
 	   omppropid as [prop id],
@@ -172,15 +169,14 @@ inner join
 	  on l.system = r.system
 	  where lower(r.structurefunction) in ('recreation center', 'nature center')) as r
 on l.system = r.system
-/*AND OMPPROPID IS NOT NULL*/ 
 union all
 select gispropnum as propnum,
 	   omppropid as [prop id],
 	   accessnewpip.dbo.fn_get_pipboro(department) as boro,
 	   accessnewpip.dbo.fn_get_pipdistrict(department) as ampsdistrict,
-	   [prop name],
+	   isnull([prop name], name) as [prop name],
 	   name as [site name],
-	   [prop location],
+	   isnull([prop location], location) as [prop location],
 	   location as [site location],
 	   round(acres, 3) as acres,
        jurisdiction,
@@ -196,8 +192,8 @@ from (select l.*,
 	  from openquery([gisdata], 'select * from parksgis.dpr.unmapped_gisallsites_evw') as l
 	  left join
 		   openquery([gisdata], 'select * from parksgis.dpr.property_evw') as r
-	  on l.gispropnum = r.gispropnum) as t
-/*where gispropnum not in ('BT02', 'BT04')*/ 
+	  on l.gispropnum = r.gispropnum and
+		 l.omppropid != l.gispropnum) as t
 union all
 select gispropnum as propnum,
 	   gispropnum as [prop id],
@@ -214,9 +210,8 @@ select gispropnum as propnum,
 	   'RestrictiveDeclarationSite' AS sourcefc, 
 	   null as gisobjid,
 	   shape
-	 /*Join to property_evw in order to get prop name and prop location*/
-from openquery([gisdata], 'select * from parksgis.dpr.restrictivedeclarationsite_evw') as l
-/*where omppropid not in('M404', 'B591', 'B595')*/)
+from openquery([gisdata], 'select * from parksgis.dpr.restrictivedeclarationsite_evw'))
+
 
 select propnum, 
 	   [prop id],

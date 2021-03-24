@@ -50,3 +50,8 @@ begin transaction
 commit;
 
 /*Query results*/
+select *
+from accessnewpip.dbo.tbl_ref_allsites
+
+select *
+from accessnewpip.dbo.tbl_ref_allsites_nosync
