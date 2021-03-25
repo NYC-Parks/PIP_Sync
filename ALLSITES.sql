@@ -47,7 +47,7 @@ alter view dbo.allsites as
 		   null as precinct,
 		   r.comfortstation,	   
 		   null as cscount,
-		   l.[prop id] as pip_prop_id,
+		   null as pip_prop_id,
 		   r.created_date as pipcreated,
 		   l.created_date as giscreated,
 		   null as [gis_retired],
