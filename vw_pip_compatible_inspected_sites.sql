@@ -77,7 +77,7 @@ from (select l.*,
 	  on l.gispropnum = r.gispropnum and
 		 l.omppropid != l.gispropnum) as t
 union all
-select gispropnum as propnum,
+select parentid as propnum,
 	   omppropid as [prop id],
 	   accessnewpip.dbo.fn_get_pipboro(department) as boro,
 	   accessnewpip.dbo.fn_get_pipdistrict(department) as ampsdistrict,
