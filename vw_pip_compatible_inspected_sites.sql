@@ -27,7 +27,7 @@ select gispropnum as propnum,
 	   shape
 from openquery([gisdata], 'select * from parksgis.dpr.property_evw')
 union all
-select gispropnum as propnum,
+select parentid as propnum,
 	   omppropid as [prop id],
 	   accessnewpip.dbo.fn_get_pipboro(department) as boro,
 	   accessnewpip.dbo.fn_get_pipdistrict(department) as ampsdistrict,
