@@ -27,4 +27,6 @@ for insert as
 		insert into accessnewpip.dbo.tbl_pip_allsites([prop id])
 			select [prop id]
 			from inserted
+			/*Structures should be excluded from this and will be brought in manually into this table.*/
+			where lower(sourcefc) != 'structure'
 	commit;

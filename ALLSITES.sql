@@ -60,7 +60,11 @@ alter view dbo.allsites as
 	from accessnewpip.dbo.tbl_ref_allsites as l
 	left join
 		 accessnewpip.dbo.tbl_pip_allsites as r
-	on l.[prop id] = r.[prop id]
+	on l.[prop id] = r.[prop id] 
+	/*Exclude records that come from structures that do not have corresponding record in tbl_pip_structures (manual workflow).*/
+	where lower(l.sourcefc) != 'structure' or
+		  (lower(l.sourcefc) = 'structure' and
+		   r.[prop id] is not null)
 	order by l.propnum, l.[prop id];
 
 go

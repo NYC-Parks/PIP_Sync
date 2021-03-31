@@ -159,16 +159,7 @@ select gispropnum as propnum,
 	   'Structure' AS sourcefc, 
 	   gisobjid,
 	   shape
-	 /*Join to property_evw in order to get prop name and prop location*/
-from openquery([gisdata], 'select * from parksgis.dpr.structure_evw') as l
-inner join
-	 (select distinct l.system
-	  from openquery([gisdata], 'select * from parksgis.dpr.structure_evw') as l
-	  inner join
-		   openquery([gisdata], 'select * from parksgis.dpr.structurefunction_evw') as r
-	  on l.system = r.system
-	  where lower(r.structurefunction) in ('recreation center', 'nature center')) as r
-on l.system = r.system
+from openquery([gisdata], 'select * from parksgis.dpr.structure_evw')
 union all
 select gispropnum as propnum,
 	   omppropid as [prop id],
