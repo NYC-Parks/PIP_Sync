@@ -23,17 +23,33 @@ go
 create procedure dbo.sp_m_tbl_ref_allsites_nosync as
 	select l.*,
 		   case when r.[prop id] is null then 'This record has never been synced because it is duplicated in the source (GIS).'
-				else 'This record was previously synced, but is now duplicated in the source (GIS). Data related to this record is no longer being updated in tbl_ref_allsites.'
+				else 'This record was previously synced, but is now duplicated between feature classes in the source (GIS). Data related to this record is no longer being updated in tbl_ref_allsites.'
 		   end as sync_issue
 	into #gis_allsites_nosync
-	from accessnewpip.dbo.vw_pip_compatible_inspected_sites as l
+	from (select distinct case when n_propid_within > 1 then null else propnum end as propnum,
+				 [prop id],
+			     sourcefc,
+				 case when n_propid_within > 1 then null else boro end as boro,
+				 case when n_propid_within > 1 then null else ampsdistrict end as ampsdistrict,
+				 case when n_propid_within > 1 then null else [prop name] end as [prop name],
+				 case when n_propid_within > 1 then null else [site name] end as [site name],
+				 case when n_propid_within > 1 then null else [prop location] end as [prop location],
+				 case when n_propid_within > 1 then null else [site location] end as [site location],
+				 case when n_propid_within > 1 then null else jurisdiction end as jusrisdiction,
+				 case when n_propid_within > 1 then null else typecategory end as typecategory,
+				 case when n_propid_within > 1 then null else acres end as acres,
+				 case when n_propid_within > 1 then null else gisobjid end as gisobjid,
+				 case when n_propid_within > 1 then hashbytes('SHA2_256', '-9999') else row_hash end as row_hash,
+				 case when n_propid_within > 1 then null else n_propid end as n_propid,
+				 case when n_propid_within > 1 then null else n_propid_within end as n_propid_within
+	      from accessnewpip.dbo.vw_pip_compatible_inspected_sites) as l
 	left join
 		 accessnewpip.dbo.tbl_ref_allsites as r
 	on l.[prop id] = r.[prop id] and 
 	   l.sourcefc = r.sourcefc
 	where l.[prop id] is not null and 
-		  l.n_propid > 1
-
+		  l.n_propid > 1 
+select * from #gis_allsites_nosync
 	begin transaction
 		merge accessnewpip.dbo.tbl_ref_allsites_nosync as tgt using #gis_allsites_nosync as src
 		/*Use the omppropid aka prop id as the merge key. Remove records with duplicate or null prop ids.*/

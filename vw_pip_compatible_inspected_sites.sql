@@ -221,7 +221,8 @@ select propnum,
 	   /*Create the row_hash so comparison of data is easier*/
 	   hashbytes('SHA2_256', concat(PropNum, Boro, AMPSDistrict, [Prop Name], [Site Name], [Prop Location], [Site Location], 
 							       jurisdiction, typecategory, cast(acres as real), gisobjid, sourcefc)) as row_hash,
-	   count(*) over(partition by [prop id] order by [prop id]) as n_propid
+	   count(*) over(partition by [prop id] order by [prop id]) as n_propid,
+	   count(*) over(partition by [prop id], sourcefc order by [prop id], sourcefc) as n_propid_within
 from allsites
 	   
 
