@@ -25,13 +25,13 @@ create procedure dbo.sp_m_tbl_pip_allsites as
 	begin transaction
 		merge accessnewpip.dbo.tbl_pip_allsites as tgt using accessnewpip.dbo.tbl_ref_allsites as src
 		/*Use the omppropid aka prop id as the merge key. Remove records with duplicate or null prop ids.*/
-		on (tgt.[prop id] = src.[prop id] and
-		    lower(src.sourcefc) != 'structure')
+		on (tgt.[prop id] = src.[prop id])
 		/*If the records are matched based on the identifiers, no updates are necessary*/
 		/*when matched
 			then update set propnum = src.propnum*/
-		/*If the record is in in tbl_pip_allsites, but not tbl_ref_allsites, an accidental deletion took place, so add the record back.*/
-		when not matched by target
+		/*If the record is in in tbl_pip_allsites, but not tbl_ref_allsites, an accidental deletion took place, so add the record back. Do not sync structures
+		  that don't already exist in tbl_pip_allsites*/
+		when not matched by target and lower(src.sourcefc) != 'structure'
 			then insert([prop id])
 				values(src.[prop id]);
 		/*Skip the delete section because this cannot occur with the foreign key constraint.*/

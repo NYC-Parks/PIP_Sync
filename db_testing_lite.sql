@@ -30,6 +30,11 @@ commit
 exec accessnewpip.dbo.sp_m_tbl_ref_allsites
 exec accessnewpip.dbo.sp_m_tbl_ref_allsites_nosync
 
+/***************************************/
+/*run insert_tbl_pip_allsites_structure*/
+/***************************************/
+exec accessnewpip.dbo.sp_m_tbl_pip_allsites
+
 /*Test some updates in the audit*/
 begin transaction
 	update accessnewpip.dbo.tbl_pip_allsites
