@@ -204,7 +204,8 @@ select gispropnum as propnum,
 from openquery([gisdata], 'select * from parksgis.dpr.restrictivedeclarationsite_evw'))
 
 
-select propnum, 
+select row_number() over(order by [prop id]) as objectid,
+	   propnum, 
 	   [prop id],
 	   boro, 
 	   ampsdistrict,
