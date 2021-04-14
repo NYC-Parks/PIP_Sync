@@ -42,8 +42,11 @@ create procedure dbo.sp_m_tbl_ref_allsites as
 				row_hash
 		into #dups
 		from accessnewpip.dbo.vw_pip_compatible_inspected_sites
-		where n_propid = 2 and 
-				n_propid_within = 1 and
+		where (n_propid = 2 and 
+			   n_propid_within = 1) or
+			   /*(n_propid > 2 and
+			    n_propid_within = 1) and*/
+				(n_propid - (n_propid - n_propid_within) = 1) and
 				[prop id] is not null
 
 	/*If the temp table exists, drop it*/
@@ -71,6 +74,11 @@ create procedure dbo.sp_m_tbl_ref_allsites as
 		where n_propid > 2 and
 				n_propid_within > 1 and 
 				[prop id] is not null
+
+	/*If the temp table exists, drop it*/
+	if object_id('tempdb..#source') is not null
+		drop table #source
+
 	/*Join the #dups table to itself and specifically extract the restrictivedeclaration site record when a property record also exists or a zone, playground or property record if a structure record
 	exists.*/
 	select *,
@@ -98,24 +106,8 @@ create procedure dbo.sp_m_tbl_ref_allsites as
 	on l.[prop id] = r.[prop id] and
 		l.sourcefc != r.sourcefc
 	where (lower(l.sourcefc) in('property', 'zone', 'playground') and lower(r.sourcefc) = 'structure') or
-		  (lower(l.sourcefc) in('restrictivedeclarationsite') and lower(r.sourcefc) = 'property')
-	union 
-	select [propnum],
-		   [prop id],
-		   boro,
-		   ampsdistrict,
-		   [prop name],
-		   [site name],
-		   [prop location],
-		   [site location],
-		   jurisdiction,
-		   typecategory,
-		   acres,
-		   gisobjid,
-		   sourcefc,
-		   row_hash,
-		   cast(1 as bit) as multidup
-	from #multidups
+		  (lower(l.sourcefc) in('restrictivedeclarationsite') and lower(r.sourcefc) = 'property') or
+		  r.sourcefc is null
 	union
 	select [propnum],
 		   [prop id],
