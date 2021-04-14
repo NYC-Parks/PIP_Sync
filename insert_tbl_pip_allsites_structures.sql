@@ -27,11 +27,19 @@ begin transaction
 			   safety_index as [safety index], 
 			   null as comfortstation, 
 			   comments
-		from openquery([gisdata], 'select * from parksgis.dpr.structure_evw')
-		where omppropid in('QR-05', 'M010_temp3', 'QR-01', 'X034_temp', 'MR-01', 'Q468_temp', 'XR-03', 'MR-07', 'X261_temp',  'BR-03',
+		from openquery([gisdata], 'select * from parksgis.dpr.structure_evw where pip_ratable = ''yes''')
+		except 
+		select [prop id],
+			   category,
+			   [sub-category], 
+			   rated, 
+			   [reason not rated], 
+			   [safety index], 
+			   comfortstation, 
+			   comments
+		from accessnewpip.dbo.tbl_pip_allsites
+		/*where omppropid in('QR-05', 'M010_temp3', 'QR-01', 'X034_temp', 'MR-01', 'Q468_temp', 'XR-03', 'MR-07', 'X261_temp',  'BR-03',
 						   'QR-03', 'MR-08', 'MR-10', 'MR-03', 'XR-02', 'QR-04', 'BR-06', 'BR-02', 'XR-05', 'X250_temp', 'MR-12', 'XR-04',
 						   'MR-02', 'BR-05', 'R149-BLG0001', 'RR-02_temp1', 'QR-02', 'MR-06', 'BR-04', 'BR-08', 'MR-11', 'MR-04', 'XR-01',
-						   'BR-07', 'MR-05', 'MR-13', 'BR-01', 'B406_temp', 'MR-09', 'RR-01')
+						   'BR-07', 'MR-05', 'MR-13', 'BR-01', 'B406_temp', 'MR-09', 'RR-01')*/
 commit;
-
-
