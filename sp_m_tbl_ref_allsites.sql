@@ -105,7 +105,7 @@ create procedure dbo.sp_m_tbl_ref_allsites as
 		 #dups as r
 	on l.[prop id] = r.[prop id] and
 		l.sourcefc != r.sourcefc
-	where (lower(l.sourcefc) in('property', 'zone', 'playground') and lower(r.sourcefc) = 'structure') or
+	where (lower(l.sourcefc) in('property', 'zone', 'playground', 'greenstreet') and lower(r.sourcefc) = 'structure') or
 		  (lower(l.sourcefc) in('restrictivedeclarationsite') and lower(r.sourcefc) = 'property') or
 		  r.sourcefc is null
 	union
