@@ -19,8 +19,8 @@
 ***********************************************************************************************************************/
 use accessnewpip
 go
---drop procedure dbo.sp_m_tbl_ref_allsites
-create procedure dbo.sp_i_tbl_temp_ref_allsites as
+--drop procedure dbo.usp_m_tbl_ref_allsites
+create procedure dbo.usp_i_tbl_temp_ref_allsites as
 
 	/*If the temp table exists, drop it*/
 	if object_id('accessnewpip.dbo.tbl_temp_ref_allsites') is not null
@@ -93,6 +93,7 @@ create procedure dbo.sp_i_tbl_temp_ref_allsites as
 		   count(*) over(partition by [prop id] order by [prop id]) as n_propid
 	into accessnewpip.dbo.tbl_temp_ref_allsites
 	from (
+	/*Join the duplicates table (#dups) to itself and use where clause to identify logic where one record takes precedence over another*/
 	select l.[propnum],
 			l.[prop id],
 			l.boro,
@@ -114,10 +115,14 @@ create procedure dbo.sp_i_tbl_temp_ref_allsites as
 		 #dups as r
 	on l.[prop id] = r.[prop id] and
 		l.sourcefc != r.sourcefc
+	/*If the [prop id] of the record is in property, zone, playground or greenstreet (from GIS) and has a duplicate [prop id] value in the structure
+	  table, then take the record from those tables. If the [prop id] of the record is in resrictivedeclartionsite (from GIS) and has a duplicate in
+	  property, then take the restrictive declartion site record. Exclude records with null [prop id].*/
 	where (lower(l.sourcefc) in('property', 'zone', 'playground', 'greenstreet') and lower(r.sourcefc) = 'structure') or
 		  (lower(l.sourcefc) in('restrictivedeclarationsite') and lower(r.sourcefc) = 'property') or
 		  r.sourcefc is null
 	union
+	/*Union all records from source view that are not duplicates (n_propid = 1) and do not have a null [prop id].*/
 	select [propnum],
 		   [prop id],
 		   boro,
@@ -139,6 +144,7 @@ create procedure dbo.sp_i_tbl_temp_ref_allsites as
 	where [prop id] is not null and
 		  n_propid = 1
 	union 
+	/*Union all records that have multiple duplicates of [prop id], these can be within or between source feature classes.*/
 	select [propnum],
 		   [prop id],
 		   boro,
@@ -157,6 +163,9 @@ create procedure dbo.sp_i_tbl_temp_ref_allsites as
 		   0 as syncflag
 	from #multidups
 	union
+	/*Join the duplicates table (#dups) to itself and use where clause to identify logic where one record takes precedence over another, but this time
+	  take the opposite records. Null out all fields but [prop id], propnum and sourcefc. This ensures we can identify the records where another was taken
+	  instead.*/
 	select distinct l.[propnum],
 		   l.[prop id],
 		   cast(null as nvarchar(1)) as boro,
@@ -172,6 +181,9 @@ create procedure dbo.sp_i_tbl_temp_ref_allsites as
 		   l.sourcefc,
 		   cast(null as varbinary(max)) as row_hash,
 		   1 as dupflag,
+		   	/*If the [prop id] of the record is in property, zone, playground or greenstreet (from GIS) and has a duplicate [prop id] value in the structure
+			  table, then flag the structure record. If the [prop id] of the record is in resrictivedeclartionsite (from GIS) and has a duplicate in
+			  property, then flag the property record. Otherwise don't flag the record.*/
 		   case when lower(r.sourcefc) in('property', 'zone', 'playground', 'greenstreet') and lower(l.sourcefc) = 'structure' then 1
 			    when lower(r.sourcefc) in('restrictivedeclarationsite') and lower(l.sourcefc) = 'property' then 1
 				else 0
@@ -181,6 +193,9 @@ create procedure dbo.sp_i_tbl_temp_ref_allsites as
 		 #dups as r
 	on l.[prop id] = r.[prop id] and
 		l.sourcefc != r.sourcefc
+	/*If the [prop id] of the record is in property, zone, playground or greenstreet (from GIS) and has a duplicate [prop id] value in the structure
+	  table, then take the record from structures. If the [prop id] of the record is in resrictivedeclartionsite (from GIS) and has a duplicate in
+	  property, then take the property record. Exclude records with null [prop id].*/
 	where (lower(r.sourcefc) in('property', 'zone', 'playground', 'greenstreet') and lower(l.sourcefc) = 'structure') or
 		  (lower(r.sourcefc) in('restrictivedeclarationsite') and lower(l.sourcefc) = 'property') or
 		  r.sourcefc is null) as u
