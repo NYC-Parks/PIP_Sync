@@ -19,8 +19,8 @@
 ***********************************************************************************************************************/
 use accessnewpip
 go
---drop procedure dbo.sp_m_tbl_pip_allsites
-create procedure dbo.sp_m_tbl_pip_allsites as
+--drop procedure dbo.usp_m_tbl_pip_allsites
+create procedure dbo.usp_m_tbl_pip_allsites as
 	
 	begin transaction
 		merge accessnewpip.dbo.tbl_pip_allsites as tgt using accessnewpip.dbo.tbl_ref_allsites as src
