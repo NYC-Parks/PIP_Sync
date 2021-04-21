@@ -56,7 +56,8 @@ alter view dbo.allsites as
 		   cast(null as nvarchar(15)) as [gisboro],
 		   cast(null as nvarchar(100)) as [gis site location], 
 		   l.sourcefc,
-		   l.gisobjid
+		   l.gisobjid,
+		   l.shape
 	from accessnewpip.dbo.tbl_ref_allsites as l
 	left join
 		 accessnewpip.dbo.tbl_pip_allsites as r

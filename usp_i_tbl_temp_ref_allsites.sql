@@ -44,6 +44,8 @@ create procedure dbo.usp_i_tbl_temp_ref_allsites as
 				acres,
 				gisobjid,
 				sourcefc,
+				/*Convert geometry values to text so they can be unioned*/
+				shape.STAsText() as shape,
 				row_hash
 		into #dups
 		from accessnewpip.dbo.vw_pip_compatible_inspected_sites
@@ -75,6 +77,8 @@ create procedure dbo.usp_i_tbl_temp_ref_allsites as
 				cast(null as real) as acres,
 				cast(null as int) as gisobjid,
 				sourcefc,
+				/*Create null values as nvarchar(max) the same type as the WKT representation of geometry so they can be unioned*/
+				cast(null as nvarchar(max)) as shape,
 				cast(null as varbinary(max)) as row_hash
 		into #multidups
 		from accessnewpip.dbo.vw_pip_compatible_inspected_sites
@@ -83,13 +87,32 @@ create procedure dbo.usp_i_tbl_temp_ref_allsites as
 			   (n_propid - (n_propid - n_propid_within) > 1) and
 			   [prop id] is not null
 
-	/*If the temp table exists, drop it*/
+	
+	/*If the table exists, drop it*/
 	if object_id('accessnewpip.dbo.tbl_temp_ref_allsites') is not null
 		drop table accessnewpip.dbo.tbl_temp_ref_allsites
 
+
 	/*Join the #dups table to itself and specifically extract the restrictivedeclaration site record when a property record also exists or a zone, playground or property record if a structure record
 	exists.*/
-	select *,
+	select [propnum],
+		   [prop id],
+		   boro,
+		   ampsdistrict,
+		   [prop name],
+		   [site name],
+		   [prop location],
+		   [site location],
+		   jurisdiction,
+		   typecategory,
+		   acres,
+		   gisobjid,
+		   sourcefc,
+		   /*Convert WKT nvarchar(max) geometry back to SQL native geometry with SRID = 2263*/
+		   geometry::STGeomFromText(shape, 2263) as shape,
+		   row_hash,
+		   dupflag,
+		   syncflag,
 		   count(*) over(partition by [prop id] order by [prop id]) as n_propid
 	into accessnewpip.dbo.tbl_temp_ref_allsites
 	from (
@@ -107,6 +130,7 @@ create procedure dbo.usp_i_tbl_temp_ref_allsites as
 			l.acres,
 			l.gisobjid,
 			l.sourcefc,
+			l.shape,
 			l.row_hash,
 			0 as dupflag,
 			0 as syncflag
@@ -136,6 +160,8 @@ create procedure dbo.usp_i_tbl_temp_ref_allsites as
 		   acres,
 		   gisobjid,
 		   sourcefc,
+		   /*Convert geometry values to text so they can be unioned*/
+		   shape.STAsText() as shape,
 		   row_hash,
 		   0 as dupflag,
 		   0 as syncflag
@@ -143,7 +169,7 @@ create procedure dbo.usp_i_tbl_temp_ref_allsites as
 	/*select non-null and non-duplicate records*/
 	where [prop id] is not null and
 		  n_propid = 1
-	union 
+	union
 	/*Union all records that have multiple duplicates of [prop id], these can be within or between source feature classes.*/
 	select [propnum],
 		   [prop id],
@@ -158,6 +184,7 @@ create procedure dbo.usp_i_tbl_temp_ref_allsites as
 		   acres,
 		   gisobjid,
 		   sourcefc,
+		   shape,
 		   row_hash,
 		   2 as dupflag,
 		   0 as syncflag
@@ -179,6 +206,8 @@ create procedure dbo.usp_i_tbl_temp_ref_allsites as
 		   cast(null as real) as acres,
 		   cast(null as int) as gisobjid,
 		   l.sourcefc,
+		   /*Create null values as nvarchar(max) the same type as the WKT representation of geometry so they can be unioned*/
+		   cast(null as nvarchar(max)) as shape,
 		   cast(null as varbinary(max)) as row_hash,
 		   1 as dupflag,
 		   	/*If the [prop id] of the record is in property, zone, playground or greenstreet (from GIS) and has a duplicate [prop id] value in the structure

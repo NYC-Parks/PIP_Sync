@@ -19,7 +19,7 @@
 ***********************************************************************************************************************/
 use accessnewpip
 go
---drop trigger dbo.trg_fi_tbl_ref_allsites
+--drop trigger dbo.trg_fu_tbl_ref_allsites
 create trigger dbo.trg_fu_tbl_ref_allsites
 on accessnewpip.dbo.tbl_ref_allsites
 for update as
@@ -36,7 +36,8 @@ for update as
 															typecategory,
 															acres,
 															gisobjid, 
-															sourcefc)
+															sourcefc,
+															shape)
 			select propnum,
 				   [prop id],
 				   boro,
@@ -49,7 +50,8 @@ for update as
 				   typecategory,
 				   acres,
 				   gisobjid, 
-				   sourcefc
+				   sourcefc,
+				   shape
 			/*Use the record from the deleted table which represents the previous values for a given record*/
 			from deleted
 	commit;

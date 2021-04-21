@@ -33,5 +33,6 @@ create table accessnewpip.dbo.tbl_ref_allsites_audit(PropNum nvarchar(25),
 													 acres real,
 													 gisobjid int, 
 													 sourcefc nvarchar(30) not null,
+													 shape geometry,
 													 gis_deleted bit,
 													 created_date datetime default getdate());

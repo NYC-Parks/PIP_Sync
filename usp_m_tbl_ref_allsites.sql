@@ -25,12 +25,11 @@ create procedure dbo.usp_m_tbl_ref_allsites as
 	begin transaction
 		merge accessnewpip.dbo.tbl_ref_allsites as tgt using accessnewpip.dbo.tbl_temp_ref_allsites as src
 		/*Use the omppropid aka prop id as the merge key. Remove records with duplicate or null prop ids.*/
-		on (tgt.[prop id] = src.[prop id] and
-		    src.dupflag = 0)
+		on (tgt.[prop id] = src.[prop id])
 		/*If the records are matched based on the identifiers, but the row hashes are different then perform an update*/
-		when matched and tgt.row_hash != src.row_hash and
+		when matched and (tgt.row_hash != src.row_hash or tgt.shape.STEquals(src.shape) = 0) and
 		     src.[prop id] is not null and
-			 src.n_propid = 1
+			 src.dupflag = 0
 			then update set propnum = src.propnum,
 							boro = src.boro,
 							ampsdistrict = src.ampsdistrict,
@@ -43,11 +42,12 @@ create procedure dbo.usp_m_tbl_ref_allsites as
 							acres = src.acres,
 							gisobjid = src.gisobjid,
 							sourcefc = src.sourcefc,
+							shape = src.shape,
 							gis_deleted = 0
 		/*If the record is in GIS, but not in PIP then perform an insert.*/
 		when not matched by target and
 		     src.[prop id] is not null and
-			 src.n_propid = 1
+			 src.dupflag = 0
 			then insert([prop id],
 						propnum, 
 						boro, 
@@ -60,9 +60,10 @@ create procedure dbo.usp_m_tbl_ref_allsites as
 						typecategory,
 						acres,
 						gisobjid,
-						sourcefc)
+						sourcefc,
+						shape)
 				values(src.[prop id], src.propnum, src.boro, src.ampsdistrict, src.[prop name], src.[site name], src.[prop location], src.[site location],
-					   src.jurisdiction, src.typecategory, src.acres, src.gisobjid, src.sourcefc)
+					   src.jurisdiction, src.typecategory, src.acres, src.gisobjid, src.sourcefc, src.shape)
 		/*Skip the delete section because we can't break any keys and the cascade effect is not known.*/
 		/*If the record is in PIP, but not GIS then perform an update and update the flag, but DO NOT DELETE records.*/
 		when not matched by source

@@ -19,16 +19,20 @@
 ***********************************************************************************************************************/
 begin transaction
 	update u
-	set u.[prop id] = s.[prop id],
-		u.category = s.category,
-		u.[sub-category] = s.[sub-category],
-		u.rated = s.rated,
-		u.[reason not rated] = s.[reason not rated],
-		u.[safety index] = s.[safety index],
-		u.comfortstation = s.comfortstation,
-		u.comments = s.comments
+	set category = s.category, 
+		[sub-category] = s.[sub-category], 
+		rated = s.rated, 
+		[reason not rated] = s.[reason not rated], 
+		[safety index] = s.[safety index], 
+		comfortstation = s.comfortstation, 
+		comments = s.comments
 	from accessnewpip.dbo.tbl_pip_allsites as u
-	inner join
+	left join
+		 accessnewpip.dbo.tbl_ref_allsites as u2
+	on u.[prop id] = u2.[prop id]
+	left join
 		 [gisdata].parksgis.dpr.vw_pip_compatible_inspected_sites as s
-	on u.[prop id] = s.[prop id]
+	on u.[prop id] = s.[prop id] and
+	   u2.sourcefc = s.sourcefc
+	where s.rated is not null
 commit;

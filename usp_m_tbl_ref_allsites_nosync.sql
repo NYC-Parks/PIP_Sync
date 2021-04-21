@@ -27,7 +27,7 @@ create procedure dbo.usp_m_tbl_ref_allsites_nosync as
 
 	select l.*,
 		   case when l.dupflag = 1 then 'Based on existing logic, an existing version of this records [prop id] has been synced from a different feature class'
-				when l.dupflag = 2 then 'Records with this [prop id] exist three or more times between source feature classes or more than once within the same feature class.'
+				when l.dupflag = 2 then 'Records with this [prop id] exist two or more times between source feature classes or more than once within the same feature class.'
 				else 'This record was previously synced, but is now duplicated between feature classes in the source (GIS). Data related to this record is no longer being updated in tbl_ref_allsites.'
 		   end as sync_issue
 	into #gis_allsites_nosync
