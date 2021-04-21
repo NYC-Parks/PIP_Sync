@@ -8,7 +8,8 @@ set quoted_identifier on
 go
 
 alter view dbo.allsites as
-	select top 100 percent l.propnum,
+	select top 100 percent row_number() over(order by l.[prop id]) as objectid,
+		   l.propnum,
 		   l.[prop id],
 		   l.boro,
 		   cast(null as nvarchar(25)) as district,
@@ -25,6 +26,10 @@ alter view dbo.allsites as
 		   r.[reason not rated],
 		   cast(null as smallint) as [sub-properties rated],
 		   cast(null as bit) as [sub-property],   
+		   case when sourcefc = 'Property' then l.typecategory
+				else r.[site category] 
+		   end as [site category],
+		   r.[rating category],
 		   cast(null as nvarchar(24)) as [gsgroupproject], 
 		   cast(null as int) as [lastinspection],
 		   cast(null as smalldatetime) as [lastinspectdate],
