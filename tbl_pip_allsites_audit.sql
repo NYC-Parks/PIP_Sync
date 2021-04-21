@@ -24,6 +24,8 @@ create table accessnewpip.dbo.tbl_pip_allsites_audit(pip_allsites_audit_id int i
 													 [prop id] nvarchar(15) not null foreign key references accessnewpip.dbo.tbl_ref_allsites([prop id]),
 													 category nvarchar(128), --foreign key references accessnewpip.dbo.tbl_ref_category(category),
 													 [sub-category] nvarchar(40), --foreign key references accessnewpip.dbo.tbl_ref_subcategory([sub-category]),
+													 [site category] nvarchar(128),
+													 typecategory nvarchar(128),
 													 rated bit not null default 0,
 													 [reason not rated] nvarchar(128),
 													 [safety index] smallint,
