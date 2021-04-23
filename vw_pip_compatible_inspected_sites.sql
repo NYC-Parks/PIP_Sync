@@ -172,7 +172,7 @@ select gispropnum as propnum,
 	   round(acres, 3) as acres,
        jurisdiction,
 	   null as typecategory,
-       null as gis_retired,
+       null as featurestatus,
 	   'Unmapped' AS sourcefc, 
 	   null as gisobjid,
 	   null shape
