@@ -7,7 +7,7 @@ go
 set quoted_identifier on
 go
 
-create view dbo.vw_pip_compatible_inspected_sites
+create view dbo.vw_pip_sync
 as
 with allsites as(
 select gispropnum as propnum,
@@ -52,11 +52,11 @@ from (select l.*,
 	  on l.gispropnum = r.gispropnum and
 		 l.omppropid != l.gispropnum) as t
 union all
-select gispropnum as propnum,
+select omppropid as propnum,
 	   omppropid as [prop id],
 	   accessnewpip.dbo.fn_get_pipboro(department) as boro,
 	   accessnewpip.dbo.fn_get_pipdistrict(department) as ampsdistrict,
-	   isnull([prop name], sitename) as [prop name],
+	   sitename as [prop name],
 	   sitename as [site name],
 	   isnull([prop location], location) as [prop location],
 	   location as [site location],
@@ -69,7 +69,7 @@ select gispropnum as propnum,
 	   shape
 	 /*Join to property_evw in order to get prop name and prop location*/
 from (select l.*,
-			 r.signname as [prop name],
+			 --r.signname as [prop name],
 			 r.location as [prop location]
 	  from openquery([gisdata], 'select * from parksgis.dpr.greenstreet_evw') as l
 	  left join

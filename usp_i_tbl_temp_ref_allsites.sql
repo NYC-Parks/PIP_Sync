@@ -19,7 +19,7 @@
 ***********************************************************************************************************************/
 use accessnewpip
 go
---drop procedure dbo.usp_m_tbl_ref_allsites
+--drop procedure dbo.usp_i_tbl_temp_ref_allsites
 create procedure dbo.usp_i_tbl_temp_ref_allsites as
 
 	/*If the temp table exists, drop it*/
@@ -48,7 +48,7 @@ create procedure dbo.usp_i_tbl_temp_ref_allsites as
 				shape.STAsText() as shape,
 				row_hash
 		into #dups
-		from accessnewpip.dbo.vw_pip_compatible_inspected_sites
+		from accessnewpip.dbo.vw_pip_sync
 		where (n_propid = 2 and 
 			   n_propid_within = 1) or
 			   /*If the count of records with the same [prop id] minus the count of records with the same [prop id] minus the count of records within the
@@ -81,7 +81,7 @@ create procedure dbo.usp_i_tbl_temp_ref_allsites as
 				cast(null as nvarchar(max)) as shape,
 				cast(null as varbinary(max)) as row_hash
 		into #multidups
-		from accessnewpip.dbo.vw_pip_compatible_inspected_sites
+		from accessnewpip.dbo.vw_pip_sync
 		where (n_propid > 2 and
 			   n_propid_within > 1) or
 			   (n_propid - (n_propid - n_propid_within) > 1) and
@@ -165,7 +165,7 @@ create procedure dbo.usp_i_tbl_temp_ref_allsites as
 		   row_hash,
 		   0 as dupflag,
 		   0 as syncflag
-	from accessnewpip.dbo.vw_pip_compatible_inspected_sites
+	from accessnewpip.dbo.vw_pip_sync
 	/*select non-null and non-duplicate records*/
 	where [prop id] is not null and
 		  n_propid = 1
