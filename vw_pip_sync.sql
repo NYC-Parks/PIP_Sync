@@ -58,7 +58,7 @@ select omppropid as propnum,
 	   accessnewpip.dbo.fn_get_pipdistrict(department) as ampsdistrict,
 	   sitename as [prop name],
 	   sitename as [site name],
-	   isnull([prop location], location) as [prop location],
+	   location as [prop location],
 	   location as [site location],
 	   round(acres, 3) as acres,
        jurisdiction,
@@ -68,14 +68,7 @@ select omppropid as propnum,
 	   gisobjid,
 	   shape
 	 /*Join to property_evw in order to get prop name and prop location*/
-from (select l.*,
-			 --r.signname as [prop name],
-			 r.location as [prop location]
-	  from openquery([gisdata], 'select * from parksgis.dpr.greenstreet_evw') as l
-	  left join
-		   openquery([gisdata], 'select * from parksgis.dpr.property_evw') as r
-	  on l.gispropnum = r.gispropnum and
-		 l.omppropid != l.gispropnum) as t
+from openquery([gisdata], 'select * from parksgis.dpr.greenstreet_evw')
 union all
 select parentid as propnum,
 	   omppropid as [prop id],
