@@ -49,8 +49,8 @@ from (select l.*,
 	  from openquery([gisdata], 'select * from parksgis.dpr.playground_evw') as l
 	  left join
 		   openquery([gisdata], 'select * from parksgis.dpr.property_evw') as r
-	  on l.gispropnum = r.gispropnum and
-		 l.omppropid != l.gispropnum) as t
+	  on l.parentid= r.gispropnum /*and
+		 l.omppropid != l.parentid*/) as t
 union all
 select omppropid as propnum,
 	   omppropid as [prop id],
@@ -92,8 +92,8 @@ from (select l.*,
 	  from openquery([gisdata], 'select * from parksgis.dpr.zone_evw') as l
 	  left join
 		   openquery([gisdata], 'select * from parksgis.dpr.property_evw') as r
-	  on l.gispropnum = r.gispropnum and
-		 l.omppropid != l.gispropnum) as t
+	  on l.parentid= r.gispropnum /*and
+		 l.omppropid != l.parentid*/) as t
 union all
 select gispropnum as propnum,
 	   omppropid as [prop id],
