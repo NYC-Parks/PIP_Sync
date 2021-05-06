@@ -19,15 +19,16 @@
 ***********************************************************************************************************************/
 begin transaction
 	insert into accessnewpip.dbo.tbl_pip_allsites([prop id], category, [sub-category], rated, [reason not rated], [safety index], comfortstation, comments)
-		select omppropid as [prop id],
+		select [prop id],
 			   category,
-			   sub_category as [sub-category], 
-			   case when pip_ratable = 'yes' then 1 else 0 end as rated, 
-			   reason_not_rated as [reason not rated], 
-			   safety_index as [safety index], 
-			   null as comfortstation, 
+			   [sub-category], 
+			   rated, 
+			   [reason not rated], 
+			   [safety index], 
+			   comfortstation, 
 			   comments
-		from openquery([gisdata], 'select * from parksgis.dpr.structure_evw where pip_ratable = ''yes''')
+		from [dataparks].accessnewpip.dbo.allsites
+		where rated is not null and sourcefc = 'Structure'
 		except 
 		select [prop id],
 			   category,
