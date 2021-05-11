@@ -34,5 +34,6 @@ begin transaction
 		 [gisdata].parksgis.dpr.vw_pip_compatible_inspected_sites as s
 	on u.[prop id] = s.[prop id] and
 	   u2.sourcefc = s.sourcefc
-	where s.rated is not null
+	where s.rated is not null and
+		  s.sourcefc != 'Structure'
 commit;
