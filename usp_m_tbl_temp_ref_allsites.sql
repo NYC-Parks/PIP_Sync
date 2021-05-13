@@ -19,12 +19,8 @@
 ***********************************************************************************************************************/
 use accessnewpip
 go
---drop procedure dbo.usp_i_tbl_temp_ref_allsites
-create procedure dbo.usp_i_tbl_temp_ref_allsites as
-
-	/*If the temp table exists, drop it*/
-	if object_id('accessnewpip.dbo.tbl_temp_ref_allsites') is not null
-		drop table accessnewpip.dbo.tbl_temp_ref_allsites;
+--drop procedure dbo.usp_m_tbl_temp_ref_allsites
+create procedure dbo.usp_m_tbl_temp_ref_allsites as
 
 	/*If the temp table exists, drop it*/
 	if object_id('tempdb..#dups') is not null
@@ -87,12 +83,6 @@ create procedure dbo.usp_i_tbl_temp_ref_allsites as
 			   (n_propid - (n_propid - n_propid_within) > 1) and
 			   [prop id] is not null
 
-	
-	/*If the table exists, drop it*/
-	if object_id('accessnewpip.dbo.tbl_temp_ref_allsites') is not null
-		drop table accessnewpip.dbo.tbl_temp_ref_allsites
-
-
 	/*Join the #dups table to itself and specifically extract the restrictivedeclaration site record when a property record also exists or a zone, playground or property record if a structure record
 	exists.*/
 	select [propnum],
@@ -114,7 +104,8 @@ create procedure dbo.usp_i_tbl_temp_ref_allsites as
 		   dupflag,
 		   syncflag,
 		   count(*) over(partition by [prop id] order by [prop id]) as n_propid
-	into accessnewpip.dbo.tbl_temp_ref_allsites
+	--into accessnewpip.dbo.tbl_temp_ref_allsites
+	into #temp_ref_allsites
 	from (
 	/*Join the duplicates table (#dups) to itself and use where clause to identify logic where one record takes precedence over another*/
 	select l.[propnum],
@@ -228,3 +219,94 @@ create procedure dbo.usp_i_tbl_temp_ref_allsites as
 	where (lower(r.sourcefc) in('property', 'zone', 'playground', 'greenstreet') and lower(l.sourcefc) = 'structure') or
 		  (lower(r.sourcefc) in('restrictivedeclarationsite') and lower(l.sourcefc) = 'property') or
 		  r.sourcefc is null) as u
+
+	select [propnum],
+		   [prop id],
+		   boro,
+		   ampsdistrict,
+		   [prop name],
+		   [site name],
+		   [prop location],
+		   [site location],
+		   jurisdiction,
+		   typecategory,
+		   acres,
+		   gisobjid,
+		   sourcefc,
+		   /*Convert WKT nvarchar(max) geometry back to SQL native geometry with SRID = 2263*/
+		   shape,
+		   row_hash as row_hash_origin,
+		   dupflag,
+		   syncflag,
+		   n_propid,
+		   hashbytes('SHA2_256', concat(PropNum, Boro, AMPSDistrict, [Prop Name], [Site Name], 
+									    [Prop Location], [Site Location], jurisdiction, typecategory, acres, 
+										gisobjid, sourcefc, row_hash, dupflag, syncflag, n_propid)) as row_hash_dest
+	into #temp_ref_allsitesf
+	from #temp_ref_allsites
+
+begin transaction
+	merge accessnewpip.dbo.tbl_temp_ref_allsites as tgt using #temp_ref_allsitesf as src
+	on (tgt.[prop id] = src.[prop id] and
+		tgt.sourcefc = src.sourcefc and 
+		tgt.row_hash_dest = src.row_hash_dest)
+	when matched
+		then update set tgt.propnum = src.propnum, 
+					tgt.boro = src.boro, 
+					tgt.ampsdistrict = src.ampsdistrict, 
+					tgt.[prop name] = src.[prop name], 
+					tgt.[site name] = src.[site name], 
+					tgt.[prop location] = src.[prop location], 
+					tgt.[site location] = src.[site location], 
+					tgt.jurisdiction = src.jurisdiction, 
+					tgt.typecategory = src.typecategory, 
+					tgt.acres = src.acres, 
+					tgt.gisobjid = src.gisobjid, 
+					tgt.row_hash_origin = src.row_hash_origin, 
+					tgt.dupflag = src.dupflag, 
+					tgt.syncflag = src.syncflag, 
+					tgt.n_propid = src.n_propid
+	when not matched by target
+		then insert([prop id], 
+					propnum, 
+					boro, 
+					ampsdistrict, 
+					[prop name], 
+					[site name], 
+					[prop location], 
+					[site location], 
+					jurisdiction, 
+					typecategory, 
+					acres, 
+					gisobjid, 
+					sourcefc, 
+					row_hash_origin, 
+					dupflag, 
+					syncflag, 
+					n_propid)
+			values(src.[prop id],
+				   src.propnum, 
+				   src.boro, 
+				   src.ampsdistrict, 
+				   src.[prop name], 
+				   src.[site name], 
+				   src.[prop location], 
+				   src.[site location], 
+				   src.jurisdiction, 
+				   src.typecategory, 
+				   src.acres, 
+				   src.gisobjid, 
+				   src.sourcefc, 
+				   src.row_hash_origin, 
+				   src.dupflag, 
+				   src.syncflag,
+				   src.n_propid)
+	when not matched by source
+		then delete;
+commit;
+
+if object_id('tempd..#temp_ref_allsites') is not null
+	drop table #temp_ref_allsites;
+
+if object_id('tempd..#temp_ref_allsitesf') is not null
+	drop table #temp_ref_allsitesf;

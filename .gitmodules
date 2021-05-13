@@ -1,3 +1,6 @@
 [submodule "IPM_Shared_Code_public"]
 	path = IPM_Shared_Code_public
 	url = git@github.com:NYCParks-data/IPM_Shared_Code_public.git
+[submodule "PIP_Sync.wiki"]
+	path = PIP_Sync.wiki
+	url = git@github.com:NYCParks-data/PIP_Sync.wiki.git
