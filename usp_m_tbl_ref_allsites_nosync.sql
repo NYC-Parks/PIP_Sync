@@ -47,7 +47,7 @@ create procedure dbo.usp_m_tbl_ref_allsites_nosync as
 		on (tgt.[prop id] = src.[prop id] and
 			tgt.sourcefc = src.sourcefc)
 		/*If the records are matched based on the identifiers, but the row hashes are different then perform an update*/
-		when matched and tgt.row_hash != src.row_hash
+		when matched and tgt.row_hash != src.row_hash_origin
 			then update set propnum = src.propnum,
 							boro = src.boro,
 							ampsdistrict = src.ampsdistrict,
