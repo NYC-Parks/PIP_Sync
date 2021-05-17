@@ -5,6 +5,8 @@ REM the script to be server agnostic.
 
 REM Run all the create table scripts
 REM -------------------------------------------------------------------------
+sqlcmd -S . -E -i tbl_ref_temp_allsites.sql
+
 sqlcmd -S . -E -i tbl_ref_allsites.sql
 
 sqlcmd -S . -E -i tbl_ref_allsites_audit.sql
@@ -26,18 +28,20 @@ sqlcmd -S . -E -i fn_get_pipdistrict.sql
 
 REM Create the view which is dependent on the functions
 REM -------------------------------------------------------------------------
-sqlcmd -S . -E -i vw_pip_compatible_inspected_sites.sql
+sqlcmd -S . -E -i vw_pip_sync.sql
 
 sqlcmd -S . -E -i ALLSITES.sql
 
 
 REM Create all of the stored procedures.
 REM -------------------------------------------------------------------------
-sqlcmd -S . -E -i sp_m_tbl_ref_allsites.sql
+sqlcmd -S . -E -i usp_m_tbl_temp_ref_allsites.sql
 
-sqlcmd -S . -E -i sp_m_tbl_ref_allsites_nosync.sql
+sqlcmd -S . -E -i usp_m_tbl_ref_allsites.sql
 
-sqlcmd -S . -E -i sp_m_tbl_pip_allsites.sql
+sqlcmd -S . -E -i usp_m_tbl_ref_allsites_nosync.sql
+
+sqlcmd -S . -E -i usp_m_tbl_pip_allsites.sql
 
 
 REM Create all of the triggers.
