@@ -28,7 +28,7 @@ from accessnewpip.dbo.tbl_ref_allsites
 commit
 
 /*Execute the stored procedures that perform the merges*/
-exec accessnewpip.dbo.usp_i_tbl_temp_ref_allsites 
+exec accessnewpip.dbo.usp_m_tbl_temp_ref_allsites 
 exec accessnewpip.dbo.usp_m_tbl_ref_allsites
 exec accessnewpip.dbo.usp_m_tbl_ref_allsites_nosync
 exec accessnewpip.dbo.usp_m_tbl_pip_allsites
