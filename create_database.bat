@@ -55,4 +55,10 @@ sqlcmd -S . -E -i trg_fiud_tbl_pip_allsites.sql
 
 REM Load in the PIP data into tbl_pip_allsites
 REM -------------------------------------------------------------------------
+sqlcmd -S . -E -i insert_tbl_pip_allsites_structures.sql
+
 sqlcmd -S . -E -i update_tbl_pip_allsites.sql
+
+REM Create the job
+REM -------------------------------------------------------------------------
+sqlcmd -S . -E -i job_pipsync.sql
