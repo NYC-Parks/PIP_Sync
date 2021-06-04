@@ -265,7 +265,8 @@ begin transaction
 					tgt.row_hash_origin = src.row_hash_origin, 
 					tgt.dupflag = src.dupflag, 
 					tgt.syncflag = src.syncflag, 
-					tgt.n_propid = src.n_propid
+					tgt.n_propid = src.n_propid,
+					tgt.shape = src.shape
 	when not matched by target
 		then insert([prop id], 
 					propnum, 
@@ -283,7 +284,8 @@ begin transaction
 					row_hash_origin, 
 					dupflag, 
 					syncflag, 
-					n_propid)
+					n_propid,
+					shape)
 			values(src.[prop id],
 				   src.propnum, 
 				   src.boro, 
@@ -300,7 +302,8 @@ begin transaction
 				   src.row_hash_origin, 
 				   src.dupflag, 
 				   src.syncflag,
-				   src.n_propid)
+				   src.n_propid,
+				   src.shape)
 	when not matched by source
 		then delete;
 commit;
