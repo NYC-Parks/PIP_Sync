@@ -245,6 +245,13 @@ create procedure dbo.usp_m_tbl_temp_ref_allsites as
 	into #temp_ref_allsitesf
 	from #temp_ref_allsites
 
+	/*Set all the SRID (spatial reference IDs) equal to the correct State Plane 2263.*/
+	begin transaction
+		update #temp_ref_allsitesf
+			set shape.STSrid = 2263
+			where shape is not null;
+	commit
+
 begin transaction
 	merge accessnewpip.dbo.tbl_temp_ref_allsites as tgt using #temp_ref_allsitesf as src
 	on (tgt.[prop id] = src.[prop id] and
