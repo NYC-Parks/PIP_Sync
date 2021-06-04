@@ -29,7 +29,7 @@ create procedure dbo.usp_m_tbl_ref_allsites as
 		/*If the records are matched based on the identifiers, but the row hashes are different then perform an update. Use logic for null shapes because
 		  null shapes have no SRID so STEquals will return a null value. In the event that records are expected to recieve null geometry in the source
 		  then tgt.shape.STEquals(src.shape) is null tgt.shape is null should be updated to tgt.shape is null.*/
-		when matched and (tgt.row_hash != src.row_hash_origin or tgt.shape.STEquals(src.shape) = 0 or tgt.shape is null) and
+		when matched and (tgt.row_hash != src.row_hash_origin or tgt.shape.STEquals(src.shape) = 0 or (tgt.shape is null and src.shape is not null)) and
 		     src.[prop id] is not null and
 			 src.dupflag = 0
 			then update set propnum = src.propnum,
