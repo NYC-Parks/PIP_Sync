@@ -1,9 +1,9 @@
 /***********************************************************************************************************************
 																													   	
  Created By: Dan Gallagher, daniel.gallagher@parks.nyc.gov, Innovation & Performance Management         											   
- Modified By: <Modifier Name>																						   			          
+ Modified By: <Mike Fowler>																						   			          
  Created Date:  <MM/DD/YYYY>																							   
- Modified Date: <MM/DD/YYYY>																							   
+ Modified Date: <06/23/2021>																							   
 											       																	   
  Project: <Project Name>	
  																							   
@@ -11,10 +11,9 @@
  			  <Database>.<Schema>.<Table Name2>																								   
  			  <Database>.<Schema>.<Table Name3>				
 			  																				   
- Description: <Lorem ipsum dolor sit amet, legimus molestiae philosophia ex cum, omnium voluptua evertitur nec ea.     
-	       Ut has tota ullamcorper, vis at aeque omnium. Est sint purto at, verear inimicus at has. Ad sed dicat       
-	       iudicabit. Has ut eros tation theophrastus, et eam natum vocent detracto, purto impedit appellantur te	   
-	       vis. His ad sonet probatus torquatos, ut vim tempor vidisse deleniti.>  									   
+ Description: <Updated to consume new location and column names for vw_pip_sync (now called [SystemDB].[dbo].[TBL_PIP_SYNC]) per Peter Carlo's changes (not documented in GitHub yet as of 6/23/2021) MEF 6/23/2021 
+ 
+ >  									   
 																													   												
 ***********************************************************************************************************************/
 use accessnewpip
@@ -28,13 +27,13 @@ create procedure dbo.usp_m_tbl_temp_ref_allsites as
 
 	/*Select any records that are duplicated just twice (by [prop id]) between source feature classes, but are not duplicated within the same source feature class.*/
 		select [propnum],
-				[prop id],
+				[propid] as [prop id],
 				boro,
 				ampsdistrict,
-				[prop name],
-				[site name],
-				[prop location],
-				[site location],
+				[propname] as [prop name],
+				[sitename] as [site name],
+				[proplocation] as [prop location],
+				[sitelocation] as [site location],
 				jurisdiction,
 				typecategory,
 				acres,
@@ -44,7 +43,7 @@ create procedure dbo.usp_m_tbl_temp_ref_allsites as
 				shape.STAsText() as shape,
 				row_hash
 		into #dups
-		from accessnewpip.dbo.vw_pip_sync
+		from [SystemDB].[dbo].[TBL_PIP_SYNC]
 		where (n_propid = 2 and 
 			   n_propid_within = 1) or
 			   /*If the count of records with the same [prop id] minus the count of records with the same [prop id] minus the count of records within the
@@ -52,7 +51,7 @@ create procedure dbo.usp_m_tbl_temp_ref_allsites as
 				 in the 'Zone' sourcefc and three times in the 'Structure' sourcefc, the equation for the 'Zone' records is 4 - (4 - 1) = 1 and the 'Strucutures'
 				 records is 4 - (4 - 3) = 3, meaning the 'Zone' record is retained.*/
 			   (n_propid - (n_propid - n_propid_within) = 1) and
-			   [prop id] is not null
+			   [propid] is not null
 
 	/*If the temp table exists, drop it*/
 	if object_id('tempdb..#multidups') is not null
@@ -61,7 +60,7 @@ create procedure dbo.usp_m_tbl_temp_ref_allsites as
 	/*Select any records that are duplicated more than twice (by [prop id]) between source feature classes and may also be duplicated within the same source feature class two or more times.
 		In order to track the existince of these records, all values except the propnum, [prop id] and sourcefc are nulled out.*/
 		select distinct [propnum],
-				[prop id],
+				[propid] as [prop id],
 				cast(null as nvarchar(1)) as boro,
 				cast(null as nvarchar(25)) as ampsdistrict,
 				cast(null as nvarchar(100)) [prop name],
@@ -77,11 +76,11 @@ create procedure dbo.usp_m_tbl_temp_ref_allsites as
 				cast(null as nvarchar(max)) as shape,
 				cast(null as varbinary(max)) as row_hash
 		into #multidups
-		from accessnewpip.dbo.vw_pip_sync
+		from [SystemDB].[dbo].[TBL_PIP_SYNC]
 		where (n_propid > 2 and
 			   n_propid_within > 1) or
 			   (n_propid - (n_propid - n_propid_within) > 1) and
-			   [prop id] is not null
+			   [propid] is not null
 
 	/*Join the #dups table to itself and specifically extract the restrictivedeclaration site record when a property record also exists or a zone, playground or property record if a structure record
 	exists.*/
@@ -139,13 +138,13 @@ create procedure dbo.usp_m_tbl_temp_ref_allsites as
 	union
 	/*Union all records from source view that are not duplicates (n_propid = 1) and do not have a null [prop id].*/
 	select [propnum],
-		   [prop id],
+		  [propid] as [prop id],
 		   boro,
 		   ampsdistrict,
-		   [prop name],
-		   [site name],
-		   [prop location],
-		   [site location],
+		 [propname] as [prop name],
+		  [sitename] as [site name],
+		  [proplocation] as [prop location],
+		   [sitelocation] as [site location],
 		   jurisdiction,
 		   typecategory,
 		   acres,
@@ -156,9 +155,9 @@ create procedure dbo.usp_m_tbl_temp_ref_allsites as
 		   row_hash,
 		   0 as dupflag,
 		   0 as syncflag
-	from accessnewpip.dbo.vw_pip_sync
+	from [SystemDB].[dbo].[TBL_PIP_SYNC]
 	/*select non-null and non-duplicate records*/
-	where [prop id] is not null and
+	where [propid] is not null and
 		  n_propid = 1
 	union
 	/*Union all records that have multiple duplicates of [prop id], these can be within or between source feature classes.*/
