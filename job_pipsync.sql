@@ -55,7 +55,7 @@ exec dbo.sp_add_jobserver
    @job_id = @job_id,  
    @server_name = N'(LOCAL)';  
 
-/*Merge vw_pip_sync with tbl_temp_ref_allsites*/
+/*Merge vw_pip_sync with tbl_temp_ref_allsites-- MEF made adjusments to usp_m_tbl_temp_ref_allsites to accommodate [SystemDB].[dbo].[TBL_PIP_SYNC] so this is actually a merge of that*/
 exec dbo.sp_add_jobstep  
     @job_id = @job_id,  
     @step_name = N'usp_m_tbl_temp_ref_allsites',  
