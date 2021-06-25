@@ -27,7 +27,7 @@ begin transaction
 			   [safety index], 
 			   comfortstation, 
 			   comments
-		from [dataparks].accessnewpip.dbo.allsites
+		from [DATA.NYCDPR.PARKS.NYCNET].accessnewpip.dbo.allsites
 		where rated is not null and sourcefc = 'Structure'
 		except 
 		select [prop id],
