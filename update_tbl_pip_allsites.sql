@@ -31,7 +31,7 @@ begin transaction
 		 accessnewpip.dbo.tbl_ref_allsites as u2
 	on u.[prop id] = u2.[prop id]
 	left join
-		 [dataparks].accessnewpip.dbo.allsites as s--[gisdata].parksgis.dpr.vw_pip_compatible_inspected_sites as s
+		 [DATA.NYCDPR.PARKS.NYCNET].accessnewpip.dbo.allsites as s--[gisdata].parksgis.dpr.vw_pip_compatible_inspected_sites as s
 	on u.[prop id] = s.[prop id] and
 	   u2.sourcefc = s.sourcefc
 	where s.rated is not null and
