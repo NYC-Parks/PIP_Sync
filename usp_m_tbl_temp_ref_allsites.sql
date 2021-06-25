@@ -16,10 +16,15 @@
  >  									   
 																													   												
 ***********************************************************************************************************************/
-use accessnewpip
-go
+USE [accessNewPIP]
+GO
+/****** Object:  StoredProcedure [dbo].[usp_m_tbl_temp_ref_allsites]    Script Date: 6/25/2021 9:56:26 AM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
 --drop procedure dbo.usp_m_tbl_temp_ref_allsites
-create procedure dbo.usp_m_tbl_temp_ref_allsites as
+ALTER procedure [dbo].[usp_m_tbl_temp_ref_allsites] as
 
 	/*If the temp table exists, drop it*/
 	if object_id('tempdb..#dups') is not null
@@ -43,7 +48,7 @@ create procedure dbo.usp_m_tbl_temp_ref_allsites as
 				shape.STAsText() as shape,
 				row_hash
 		into #dups
-		from [SystemDB].[dbo].[TBL_PIP_SYNC]
+		from OPENQUERY([DATA.NYCDPR.PARKS.NYCNET], 'select * from [SystemDB].[dbo].[TBL_PIP_SYNC]')
 		where (n_propid = 2 and 
 			   n_propid_within = 1) or
 			   /*If the count of records with the same [prop id] minus the count of records with the same [prop id] minus the count of records within the
@@ -76,7 +81,7 @@ create procedure dbo.usp_m_tbl_temp_ref_allsites as
 				cast(null as nvarchar(max)) as shape,
 				cast(null as varbinary(max)) as row_hash
 		into #multidups
-		from [SystemDB].[dbo].[TBL_PIP_SYNC]
+		from OPENQUERY([DATA.NYCDPR.PARKS.NYCNET], 'select * from [SystemDB].[dbo].[TBL_PIP_SYNC]')
 		where (n_propid > 2 and
 			   n_propid_within > 1) or
 			   (n_propid - (n_propid - n_propid_within) > 1) and
@@ -155,7 +160,7 @@ create procedure dbo.usp_m_tbl_temp_ref_allsites as
 		   row_hash,
 		   0 as dupflag,
 		   0 as syncflag
-	from [SystemDB].[dbo].[TBL_PIP_SYNC]
+	from OPENQUERY([DATA.NYCDPR.PARKS.NYCNET], 'select * from [SystemDB].[dbo].[TBL_PIP_SYNC]')
 	/*select non-null and non-duplicate records*/
 	where [propid] is not null and
 		  n_propid = 1
