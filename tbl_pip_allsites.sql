@@ -11,10 +11,7 @@
  			  <Database>.<Schema>.<Table Name2>																								   
  			  <Database>.<Schema>.<Table Name3>				
 			  																				   
- Description: <Lorem ipsum dolor sit amet, legimus molestiae philosophia ex cum, omnium voluptua evertitur nec ea.     
-	       Ut has tota ullamcorper, vis at aeque omnium. Est sint purto at, verear inimicus at has. Ad sed dicat       
-	       iudicabit. Has ut eros tation theophrastus, et eam natum vocent detracto, purto impedit appellantur te	   
-	       vis. His ad sonet probatus torquatos, ut vim tempor vidisse deleniti. >  									   
+ Description: <NOTE: PROP ID should be primary key in this table if you want to make edits in SSMS editor. Can be applied at end of runbook via "table properties" dialog >  									   
 																													   												
 ***********************************************************************************************************************/
 if object_id('accessnewpip.dbo.tbl_pip_allsites') is not null
